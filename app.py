@@ -5,10 +5,51 @@ import os
 
 st.set_page_config(page_title="禹来日常记账系统", layout="wide", page_icon="📊")
 
+# ==========================================
+# 🔒 第一道防线：云端密码验证模块
+# ==========================================
+def check_password():
+    def password_entered():
+        # 这里会去读取我们在 Streamlit 后台保险箱里设置的密码
+        if st.session_state["pwd_input"] == st.secrets["APP_PASSWORD"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["pwd_input"]  # 验证通过后立刻清除密码记录，防泄漏
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.markdown("<br><br><h2 style='text-align: center; color: #333;'>🔒 禹来环保记账系统</h2>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.text_input("请输入访问密码：", type="password", on_change=password_entered, key="pwd_input")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.markdown("<br><br><h2 style='text-align: center; color: #333;'>🔒 禹来环保记账系统</h2>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.text_input("请输入访问密码：", type="password", on_change=password_entered, key="pwd_input")
+            st.error("❌ 密码错误，请重新输入！")
+        return False
+    else:
+        return True
+
+# 拦截器：如果密码不对，立刻停止向下运行
+if not check_password():
+    st.stop()
+
+# 侧边栏：增加一个退出登录按钮
+with st.sidebar:
+    st.markdown("### 👤 用户中心")
+    if st.button("🚪 退出登录", use_container_width=True):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
+# ==========================================
+# 🚀 以下为主程序核心代码（仅登录后可见）
+# ==========================================
 DATA_FILE = "yulai_cloud_ledger.csv"
 COLUMNS = ['月份', '序号', '时间', '总类别', '子类别', '摘要', '人员', '人数', '出发地/目的地', '金额', '申请人', '申报状态', '备注']
 
-# 颜色配置字典 (用于渲染分类汇总的颜色)
 CAT_COLORS = {
     "接待": "#e3f2fd", "餐旅": "#e8f5e9", "经营管理": "#fff3e0",
     "办公费用": "#f3e5f5", "人员薪酬": "#ffebee", "其他": "#f5f5f5"
@@ -27,8 +68,7 @@ def save_data(df):
 if 'df' not in st.session_state:
     st.session_state.df = load_data()
 
-# 顶部分类标签卡 (完美复现了之前的三个页面切换)
-st.title("📊 禹来日常记账系统 (云端永久免费版)")
+st.title("📊 禹来日常记账系统")
 tab1, tab2, tab3 = st.tabs(["💰 新增账目", "📋 台账明细与修改", "📈 月度报表汇总"])
 
 # --- 页面 1: 录入新账目 ---
@@ -56,8 +96,6 @@ with tab1:
         if submit:
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
-            
-            # 自动计算流水号
             current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
             count = len(current_month_df) + 1
             serial = f"CL{year_month}{count:03d}"
@@ -75,9 +113,8 @@ with tab1:
 # --- 页面 2: 台账明细与超级修改 ---
 with tab2:
     st.markdown("### 📋 日常台账明细")
-    st.info("💡 **超级功能（类似Excel）**：双击下方表格的任意单元格可**直接修改**内容！选中左侧的复选框，按键盘 `Delete` 键可**删除**整行！修改完记得点击底部的绿色保存按钮。")
+    st.info("💡 **超级操作提示**：双击下方表格的任意单元格可**直接修改**内容！选中左侧的复选框，按键盘 `Delete` 键可**删除**整行！修改完务必点击底部的【🔄 保存修改到云端】。")
     
-    # 核心：调用可编辑的云端数据表
     edited_df = st.data_editor(
         st.session_state.df,
         num_rows="dynamic",
@@ -109,7 +146,6 @@ with tab3:
         st.markdown("<br>", unsafe_allow_html=True)
         
         col_m, col_c = st.columns(2)
-        
         with col_m:
             st.markdown("#### 📅 月度总支出汇总")
             monthly = temp_df.groupby('月份')['金额'].sum().reset_index()
@@ -118,11 +154,8 @@ with tab3:
         with col_c:
             st.markdown("#### 🏷️ 各类别支出明细")
             cat_sum = temp_df.groupby(['总类别', '子类别'])['金额'].sum().reset_index()
-            
-            # 为分类表格加上柔和的底色
             def color_cat(val):
                 color = CAT_COLORS.get(val, "#ffffff")
                 return f'background-color: {color}; color: #333;'
-                
             styled_cat_sum = cat_sum.style.map(color_cat, subset=['总类别'])
             st.dataframe(styled_cat_sum, use_container_width=True)
