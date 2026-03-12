@@ -133,6 +133,7 @@ with tab2:
     col_exp.download_button("📥 导出财务月报 (CSV)", data=csv, file_name="禹来云端台账.csv", mime="text/csv")
 
 # --- 页面 3: 月度与分类报表 ---
+# --- 页面 3: 月度与分类报表 ---
 with tab3:
     st.markdown("### 📈 财务数据汇总")
     if st.session_state.df.empty:
@@ -149,11 +150,16 @@ with tab3:
         with col_m:
             st.markdown("#### 📅 月度总支出汇总")
             monthly = temp_df.groupby('月份')['金额'].sum().reset_index()
+            # 强制保留两位小数
+            monthly['金额'] = monthly['金额'].map("{:.2f}".format)
             st.dataframe(monthly, use_container_width=True)
             
         with col_c:
             st.markdown("#### 🏷️ 各类别支出明细")
             cat_sum = temp_df.groupby(['总类别', '子类别'])['金额'].sum().reset_index()
+            # 强制保留两位小数
+            cat_sum['金额'] = cat_sum['金额'].map("{:.2f}".format)
+            
             def color_cat(val):
                 color = CAT_COLORS.get(val, "#ffffff")
                 return f'background-color: {color}; color: #333;'
