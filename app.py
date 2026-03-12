@@ -151,4 +151,54 @@ with tab2:
             st.dataframe(apply_color_style(display_df), use_container_width=True, height=450)
         else:
             # 修改模式：原生编辑器
-            st.warning("⚠️ 现处于修改模式，双击修改或
+            st.warning("⚠️ 现处于修改模式，双击修改或按Delete删除。完成后请点击下方保存按钮！")
+            edited_df = st.data_editor(
+                st.session_state.df,
+                num_rows="dynamic",
+                use_container_width=True,
+                height=450,
+                column_config={"金额": st.column_config.NumberColumn("金额 (元)", format="%.2f")}
+            )
+            col_save, col_exp = st.columns([1, 4])
+            if col_save.button("🔄 保存修改到云端", type="primary"):
+                st.session_state.df = edited_df
+                save_data(edited_df)
+                st.success("✅ 修改已保存！请开启上方阅览模式查看彩色效果。")
+                
+        # 导出按钮
+        st.markdown("<br>", unsafe_allow_html=True)
+        csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
+        st.download_button("📥 导出财务月报 (CSV)", data=csv, file_name="禹来云端台账.csv", mime="text/csv")
+
+# --- 页面 3: 月度与分类报表 ---
+with tab3:
+    st.markdown("### 📈 财务数据汇总")
+    if st.session_state.df.empty:
+        st.warning("暂无数据。")
+    else:
+        temp_df = st.session_state.df.copy()
+        temp_df['金额'] = pd.to_numeric(temp_df['金额'], errors='coerce').fillna(0.0)
+        total = temp_df['金额'].sum()
+        
+        st.markdown(f"<div style='background-color: #e9ecef; padding: 15px; border-radius: 5px; font-size: 20px; font-weight: bold; color: #333;'>年度总支出累计: <span style='color:#d32f2f'>{total:.2f}</span> 元</div>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        col_m, col_c = st.columns(2)
+        with col_m:
+            st.markdown("#### 📅 月度总支出汇总")
+            monthly = temp_df.groupby('月份')['金额'].sum().reset_index()
+            # 强制保留两位小数
+            monthly['金额'] = monthly['金额'].map("{:.2f}".format)
+            monthly = monthly.rename(columns={'金额': '当月总支出 (元)'})
+            st.dataframe(monthly, use_container_width=True)
+            
+        with col_c:
+            st.markdown("#### 🏷️ 各类别支出明细")
+            cat_sum = temp_df.groupby(['总类别', '子类别'])['金额'].sum().reset_index()
+            # 强制保留两位小数
+            cat_sum['金额'] = cat_sum['金额'].map("{:.2f}".format)
+            cat_sum = cat_sum.rename(columns={'金额': '累计金额 (元)'})
+            
+            # 使用前面定义的跨组件渲染器，确保和明细表颜色 100% 联动！
+            styled_cat_sum = apply_color_style(cat_sum)
+            st.dataframe(styled_cat_sum, use_container_width=True)
