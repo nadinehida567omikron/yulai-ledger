@@ -6,14 +6,13 @@ import os
 st.set_page_config(page_title="禹来日常记账系统", layout="wide", page_icon="📊")
 
 # ==========================================
-# 🔒 第一道防线：云端密码验证模块
+# 🔒 密码验证模块
 # ==========================================
 def check_password():
     def password_entered():
-        # 这里会去读取我们在 Streamlit 后台保险箱里设置的密码
         if st.session_state["pwd_input"] == st.secrets["APP_PASSWORD"]:
             st.session_state["password_correct"] = True
-            del st.session_state["pwd_input"]  # 验证通过后立刻清除密码记录，防泄漏
+            del st.session_state["pwd_input"]
         else:
             st.session_state["password_correct"] = False
 
@@ -33,11 +32,9 @@ def check_password():
     else:
         return True
 
-# 拦截器：如果密码不对，立刻停止向下运行
 if not check_password():
     st.stop()
 
-# 侧边栏：增加一个退出登录按钮
 with st.sidebar:
     st.markdown("### 👤 用户中心")
     if st.button("🚪 退出登录", use_container_width=True):
@@ -45,15 +42,35 @@ with st.sidebar:
         st.rerun()
 
 # ==========================================
-# 🚀 以下为主程序核心代码（仅登录后可见）
+# 🎨 色彩与核心数据引擎
 # ==========================================
 DATA_FILE = "yulai_cloud_ledger.csv"
 COLUMNS = ['月份', '序号', '时间', '总类别', '子类别', '摘要', '人员', '人数', '出发地/目的地', '金额', '申请人', '申报状态', '备注']
 
+# --- 高级深色调色板 (基于用户上传图片采样) ---
+# 背景色为深色，字体统一强制为纯白(#FFFFFF)
 CAT_COLORS = {
-    "接待": "#e3f2fd", "餐旅": "#e8f5e9", "经营管理": "#fff3e0",
-    "办公费用": "#f3e5f5", "人员薪酬": "#ffebee", "其他": "#f5f5f5"
+    "接待": {"bg": "#1D3E6E", "text": "#FFFFFF"},      # 深宝蓝
+    "餐旅": {"bg": "#195458", "text": "#FFFFFF"},      # 深孔雀绿
+    "经营管理": {"bg": "#A63A24", "text": "#FFFFFF"},  # 铁锈红
+    "办公费用": {"bg": "#4D2B5D", "text": "#FFFFFF"},  # 深紫罗兰
+    "人员薪酬": {"bg": "#9E234A", "text": "#FFFFFF"},  # 复古绛红
+    "其他": {"bg": "#9B6B1E", "text": "#FFFFFF"}       # 深芥末棕
 }
+
+# --- 核心：跨组件颜色渲染器 ---
+def style_category(val):
+    """用于 Pandas Styler 的单元格颜色渲染"""
+    config = CAT_COLORS.get(val, {"bg": "#6c757d", "text": "#FFFFFF"})
+    return f"background-color: {config['bg']}; color: {config['text']}; font-weight: bold;"
+
+def apply_color_style(df_to_style):
+    """统一为明细表和汇总表穿上'彩色衣服'"""
+    # 兼容 pandas 新老版本
+    if hasattr(df_to_style.style, 'map'):
+        return df_to_style.style.map(style_category, subset=['总类别'])
+    else:
+        return df_to_style.style.applymap(style_category, subset=['总类别'])
 
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -68,6 +85,9 @@ def save_data(df):
 if 'df' not in st.session_state:
     st.session_state.df = load_data()
 
+# ==========================================
+# 🖥️ 界面渲染
+# ==========================================
 st.title("📊 禹来日常记账系统")
 tab1, tab2, tab3 = st.tabs(["💰 新增账目", "📋 台账明细与修改", "📈 月度报表汇总"])
 
@@ -113,55 +133,22 @@ with tab1:
 # --- 页面 2: 台账明细与超级修改 ---
 with tab2:
     st.markdown("### 📋 日常台账明细")
-    st.info("💡 **超级操作提示**：双击下方表格的任意单元格可**直接修改**内容！选中左侧的复选框，按键盘 `Delete` 键可**删除**整行！修改完务必点击底部的【🔄 保存修改到云端】。")
+    st.info("💡 双击单元格直接修改内容！修改完务必点击底部的【🔄 保存修改到云端】。导出CSV时格式不受颜色影响。")
     
-    edited_df = st.data_editor(
-        st.session_state.df,
-        num_rows="dynamic",
-        use_container_width=True,
-        height=400,
-        column_config={"金额": st.column_config.NumberColumn("金额 (元)", format="%.2f")}
-    )
-    
-    col_save, col_exp = st.columns([1, 4])
-    if col_save.button("🔄 保存修改到云端", type="primary"):
-        st.session_state.df = edited_df
-        save_data(edited_df)
-        st.success("✅ 修改与删除操作已成功同步至云端！")
-        
-    csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
-    col_exp.download_button("📥 导出财务月报 (CSV)", data=csv, file_name="禹来云端台账.csv", mime="text/csv")
-
-# --- 页面 3: 月度与分类报表 ---
-# --- 页面 3: 月度与分类报表 ---
-with tab3:
-    st.markdown("### 📈 财务数据汇总")
     if st.session_state.df.empty:
-        st.warning("暂无数据。")
+        st.warning("暂无记录。")
     else:
-        temp_df = st.session_state.df.copy()
-        temp_df['金额'] = pd.to_numeric(temp_df['金额'], errors='coerce').fillna(0.0)
-        total = temp_df['金额'].sum()
+        # 为了让台账明细也有颜色，我们渲染一个带颜色的视图供查看
+        # 考虑到 Streamlit 的可编辑表格 (data_editor) 暂时不支持带颜色的 Pandas Styler
+        # 我们用一个巧妙的折中办法：不可编辑但带颜色的展示表 + 可编辑但不带颜色的操作表
         
-        st.markdown(f"<div style='background-color: #e9ecef; padding: 15px; border-radius: 5px; font-size: 20px; font-weight: bold; color: #333;'>年度总支出累计: <span style='color:#d32f2f'>{total:.2f}</span> 元</div>", unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
+        view_mode = st.toggle("🔍 开启彩色只读阅览模式 (关闭则进入可修改模式)", value=True)
         
-        col_m, col_c = st.columns(2)
-        with col_m:
-            st.markdown("#### 📅 月度总支出汇总")
-            monthly = temp_df.groupby('月份')['金额'].sum().reset_index()
-            # 强制保留两位小数
-            monthly['金额'] = monthly['金额'].map("{:.2f}".format)
-            st.dataframe(monthly, use_container_width=True)
-            
-        with col_c:
-            st.markdown("#### 🏷️ 各类别支出明细")
-            cat_sum = temp_df.groupby(['总类别', '子类别'])['金额'].sum().reset_index()
-            # 强制保留两位小数
-            cat_sum['金额'] = cat_sum['金额'].map("{:.2f}".format)
-            
-            def color_cat(val):
-                color = CAT_COLORS.get(val, "#ffffff")
-                return f'background-color: {color}; color: #333;'
-            styled_cat_sum = cat_sum.style.map(color_cat, subset=['总类别'])
-            st.dataframe(styled_cat_sum, use_container_width=True)
+        if view_mode:
+            # 开启阅览模式：完美彩色渲染，格式化金额为两位小数
+            display_df = st.session_state.df.copy()
+            display_df['金额'] = pd.to_numeric(display_df['金额']).map("{:.2f}".format)
+            st.dataframe(apply_color_style(display_df), use_container_width=True, height=450)
+        else:
+            # 修改模式：原生编辑器
+            st.warning("⚠️ 现处于修改模式，双击修改或
