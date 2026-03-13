@@ -23,9 +23,9 @@ CAT_COLORS = {
     "其他": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"}        
 }
 STATUS_COLORS = { "已申报": "rgba(255,255,255,0.03)", "未申报": "rgba(255,255,255,0.03)", "审批中": "rgba(255,255,255,0.03)" }
-PLOTLY_COLORS = {k: BRAND_COLOR for k in CAT_COLORS.keys()} # 图表统一采用荧光色调
+PLOTLY_COLORS = {k: BRAND_COLOR for k in CAT_COLORS.keys()}
 
-# 💡 卡片头部组件渲染器 (满足：图标容器 -> 标题 -> 描述)
+# 💡 卡片头部组件渲染器
 def render_header(icon, title, desc):
     return f"""
     <div class="card-header-wrapper">
@@ -36,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (The Neon Glass Engine)
+# ⬛ 霓虹悬浮 CSS 引擎 (4列加宽版)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -50,40 +50,35 @@ def inject_neon_ui():
         .stApp {{ background-color: {BG_DARK} !important; }} 
         [data-testid="stSidebar"] {{ background-color: #0A0A0A !important; border-right: 1px solid {BORDER_COLOR} !important; }}
         header {{ visibility: hidden !important; }} 
-        [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1100px !important; margin: 0 auto !important; }}
+        
+        /* 💥 拓宽页面容器以完美容纳4列，避免输入框显得太窄 */
+        [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* ============================================================== */
-        /* 💥 1. 25px圆角卡片与交互动效 (Hover 上浮 4px + 荧光弥散光晕)    */
-        /* ============================================================== */
+        /* 1. 25px圆角卡片与交互动效 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
             border: 1px solid {BORDER_COLOR} !important; 
-            border-radius: 25px !important;       /* 💥 25px 大圆角 */
+            border-radius: 25px !important;       
             padding: 36px 40px 24px 40px !important; 
             margin-bottom: 40px !important;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; /* 0.4s 平滑过渡 */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
             position: relative;
             z-index: 1;
             backdrop-filter: blur(10px);
         }}
         
-        /* 💥 核心悬停动效 */
         [data-testid="stVerticalBlockBorderWrapper"]:hover {{
-            transform: translateY(-4px) !important; /* 上浮 4px */
-            border-color: rgba(167, 240, 105, 0.4) !important; /* 边框微微泛出荧光绿 */
-            /* 荧光弥散光晕模拟霓虹灯 */
-            box-shadow: 0 15px 40px -10px rgba(167, 240, 105, 0.15),
-                        0 0 25px rgba(167, 240, 105, 0.08) !important;
+            transform: translateY(-4px) !important; 
+            border-color: rgba(167, 240, 105, 0.4) !important; 
+            box-shadow: 0 15px 40px -10px rgba(167, 240, 105, 0.15), 0 0 25px rgba(167, 240, 105, 0.08) !important;
             z-index: 10;
         }}
 
-        /* ============================================================== */
-        /* 💥 2. 垂直头部结构：图标(方块) -> 标题 -> 描述                 */
-        /* ============================================================== */
-        .card-header-wrapper {{ display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 32px; }}
+        /* 2. 垂直头部结构 */
+        .card-header-wrapper {{ display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 24px; }}
         .icon-container {{
             width: 42px; height: 42px;
-            border-radius: 12px; /* 深色圆角方块 */
+            border-radius: 12px; 
             border: 1px solid {BORDER_COLOR};
             background-color: rgba(255,255,255,0.02);
             display: flex; justify-content: center; align-items: center;
@@ -94,7 +89,6 @@ def inject_neon_ui():
         .title-text {{ color: #FFFFFF; font-size: 18px; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }}
         .desc-text {{ color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 400; }}
         
-        /* 💥 卡片悬停时，内部图标容器放大 110% 且边框点亮荧光色 */
         [data-testid="stVerticalBlockBorderWrapper"]:hover .icon-container {{
             transform: scale(1.1);
             border-color: {BRAND_COLOR};
@@ -102,13 +96,11 @@ def inject_neon_ui():
             box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* ============================================================== */
-        /* 💥 3. 全局组件底座归一化 (匹配极细半透明白框)                  */
-        /* ============================================================== */
+        /* 3. 全局组件底座归一化 (高度48px) */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.2) !important;
             border: 1px solid {BORDER_COLOR} !important;
-            border-radius: 12px !important; /* 内部控件使用12px，与外部25px形成嵌套呼应 */
+            border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
             box-sizing: border-box !important;
@@ -118,38 +110,34 @@ def inject_neon_ui():
         div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
         div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; }}
         
-        /* 多行文本框高度修复 */
-        .stTextArea textarea {{ 
-            background-color: rgba(0,0,0,0.2) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 12px !important;
-            color: #FFFFFF !important; font-size: 14px !important; height: 140px !important; line-height: 1.6 !important; padding: 16px !important; 
-            transition: all 0.3s ease !important;
+        /* 针对所有单行输入框优化对齐 */
+        [data-testid="stTextInput"] div[data-baseweb="input"], [data-testid="stDateInput"] div[data-baseweb="input"] {{
+            background-color: transparent !important; border: none !important; box-shadow: none !important;
         }}
-        [data-testid="stTextArea"] {{ margin-bottom: 2px !important; }}
 
         /* 数字控件加减号修复 */
         [data-testid="stNumberInput"] div[data-baseweb="input"] {{ padding: 0 !important; }}
         [data-testid="stNumberInput"] input {{ height: 48px !important; line-height: 48px !important; padding: 0 12px !important; }}
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 48px !important; width: 36px !important; border: none !important; }}
         
-        /* 日期底座靶向清除 */
-        .stDateInput div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; }}
-
         /* 下拉框文字居中 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 14px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: center !important; width: 100% !important; }}
         div[data-baseweb="select"] span[data-baseweb="icon"] {{ color: rgba(255,255,255,0.4) !important; margin-right: 12px !important; }}
         
-        /* 💥 聚焦态：边框亮起荧光绿，泛出光晕 */
-        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within, .stTextArea textarea:focus {{
+        /* 聚焦态泛出光晕 */
+        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {{
             border-color: {BRAND_COLOR} !important; 
             box-shadow: 0 0 0 1px {BRAND_COLOR} !important;
         }}
         
+        /* 下拉面板 */
+        div[data-baseweb="menu"] {{ background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; margin-top: 4px !important;}}
+        div[data-baseweb="menu"] div {{ font-size: 14px !important; color: #A0A0A5 !important; padding: 8px 12px !important; text-align: center !important; }}
+
         /* 标签对齐与透灰色 */
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
-        /* ============================================================== */
-        /* 💥 4. 按钮设计：暗色底 + 荧光色边框反差                         */
-        /* ============================================================== */
+        /* 4. 按钮设计：暗色底 + 荧光色边框反差 */
         .stButton>button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
@@ -159,16 +147,8 @@ def inject_neon_ui():
             display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important;
             transition: all 0.4s ease !important; margin-top: 12px !important;
         }}
-        /* 提交按钮采用品牌荧光色线框，Hover时填满发光 */
-        .stButton>button[kind="primary"] {{
-            border-color: {BRAND_COLOR} !important;
-            color: {BRAND_COLOR} !important;
-        }}
-        .stButton>button[kind="primary"]:hover {{
-            background-color: {BRAND_COLOR} !important;
-            color: #000000 !important;
-            box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important;
-        }}
+        .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
+        .stButton>button[kind="primary"]:hover {{ background-color: {BRAND_COLOR} !important; color: #000000 !important; box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; }}
 
         /* 表格与选项卡 */
         [data-testid="stDataFrame"] {{ border: none !important; background-color: transparent !important; }}
@@ -270,39 +250,40 @@ st.markdown("<h2 style='color:#FFF; font-weight:600; margin-bottom: 32px; font-s
 tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
-    # 💥 区块 A 
+    # 💥 区块 A：1排4列 矩阵
     with st.container(border=True):
         st.markdown(render_header("📊", "核心账目核算", "请在此准确定义费用的属性及流出金额"), unsafe_allow_html=True)
-        a_col1, a_col2, a_col3 = st.columns(3) 
+        # 第一排 4 列
+        a_col1, a_col2, a_col3, a_col4 = st.columns(4) 
         with a_col1: date = st.date_input("发生时间", datetime.date.today())
         with a_col2: main_cat = st.selectbox("总类别", list(CAT_COLORS.keys()))
         with a_col3: sub_cat = st.text_input("子类别")
+        with a_col4: amount = st.number_input("报销金额 (元)", min_value=0.0, step=0.01)
         
-        a2_col1, a2_col2, a2_col3 = st.columns(3)
-        with a2_col1: amount = st.number_input("报销金额 (元)", min_value=0.0, step=0.01)
-        with a2_col2: remarks = st.text_input("补充备注信息", placeholder="选填")
+        # 第二排 4 列（由于只需放一个备注，后3个补空维持栅格统一）
+        a2_col1, a2_col2, a2_col3, a2_col4 = st.columns(4)
+        with a2_col1: remarks = st.text_input("补充备注信息", placeholder="选填")
+        with a2_col2: st.empty() 
         with a2_col3: st.empty() 
+        with a2_col4: st.empty() 
 
-    # 💥 区块 B 
+    # 💥 区块 B：完美容纳 4 项，组成极致干净的 1排4列
     with st.container(border=True):
         st.markdown(render_header("📍", "业务执行追踪", "关联业务实际发生地点与参与详情"), unsafe_allow_html=True)
-        b_col1, b_col2, b_col3 = st.columns(3) 
+        b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
         with b_col1: location = st.text_input("目的地 / 行程")
         with b_col2: people = st.text_input("涉及人员")
         with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1)
-        
-        b2_col1, b2_col2, b2_col3 = st.columns(3)
-        with b2_col1: summary = st.text_input("事由摘要", placeholder="精确描述业务动向")
-        with b2_col2: st.empty()
-        with b2_col3: st.empty()
+        with b_col4: summary = st.text_input("事由摘要", placeholder="精确描述业务动向") # 摘要变为单行输入框，完美融入4列矩阵
 
-    # 💥 区块 C
+    # 💥 区块 C：1排4列 矩阵
     with st.container(border=True):
         st.markdown(render_header("⚡", "审计与提交流", "确认申报状态并进行底层数据封装"), unsafe_allow_html=True)
-        c_col1, c_col2, c_col3 = st.columns(3)
+        c_col1, c_col2, c_col3, c_col4 = st.columns(4)
         with c_col1: status = st.selectbox("当前申报状态", list(STATUS_COLORS.keys()))
         with c_col2: applicant = st.text_input("提交申请人", value=st.session_state["username"])
         with c_col3: st.empty() 
+        with c_col4: st.empty() 
         
         if st.button("封装记录并写入底层数据库", type="primary"):
             month_str = f"{date.month:02d}"
@@ -319,6 +300,21 @@ with tab1:
             st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
             save_data_to_cloud(st.session_state.df)
             st.success(f"审计日志链已生成。标识: {serial}")
+
+    # 💥 动态 CSS 色彩引擎：兼容全新的 4 列布局索引
+    st.markdown(f"""
+        <style>
+        /* 针对区块 A 里的第 2 列 (总类别) */
+        [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
+            background-color: {CAT_COLORS[main_cat]['bg']} !important;
+            border-color: {CAT_COLORS[main_cat]['border']} !important;
+        }}
+        /* 针对区块 C 里的第 1 列 (申报状态) */
+        [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(3) [data-testid="column"]:nth-of-type(1) div[data-baseweb="select"] {{
+            background-color: {STATUS_COLORS[status]} !important;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
 
 with tab2:
     with st.container(border=True):
