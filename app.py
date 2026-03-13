@@ -271,7 +271,7 @@ with tab3:
             st.markdown("<h5 style='font-weight: 600;'>月度开支趋势</h5>", unsafe_allow_html=True)
             monthly = temp_df.groupby('月份')['金额'].sum().reset_index()
             fig_bar = px.bar(monthly, x='月份', y='金额', text_auto='.2f', color_discrete_sequence=['#0A84FF'])
-            fig_bar.update_traces(marker_line_radius=8)
+            # 已删除引起报错的 marker_line_radius 代码，保障系统稳定运行
             fig_bar.update_layout(xaxis_type='category', margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#F5F5F7')
             st.plotly_chart(fig_bar, use_container_width=True)
             
