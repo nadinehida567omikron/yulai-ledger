@@ -5,7 +5,7 @@ import requests
 import plotly.express as px
 
 # 隐藏 Streamlit 默认的顶部导航和汉堡菜单，打造纯净客户端体验
-st.set_page_config(page_title="2026 财务库", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
 # 🎨 专业级色盘：低纯度 / 低明度色系 (严格参考高级 UI)
@@ -34,26 +34,20 @@ def inject_professional_ui():
         
         /* 1. 极致底层背景 */
         html, body, [class*="css"] {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif !important;
             -webkit-font-smoothing: antialiased;
         }
         .stApp { background-color: #0D0D0F !important; } /* 极深渊黑背景 */
         [data-testid="stSidebar"] { background-color: #121214 !important; border-right: 1px solid #232326 !important; }
         header { visibility: hidden !important; } /* 隐藏顶部多余白条 */
 
-        /* 2. 核心重构：将 Form 和 Container 变为高级“卡片(Card)” */
-        /* 通过劫持 st.form 的样式，打造具有呼吸感的输入模块 */
-        [data-testid="stForm"] {
-            background-color: #161618 !important; /* 卡片底色，略亮于背景 */
-            border: 1px solid #232326 !important; /* 极细边框 */
-            border-radius: 12px !important;       /* 高级圆角 */
-            padding: 32px 32px 16px 32px !important; /* 奢侈的内边距 */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; /* 悬浮阴影 */
-            margin-bottom: 30px !important;
+        /* 2. 背景模块层次化 */
+        [data-testid="block-container"] {
+            padding-top: 2rem !important;
         }
 
         /* 3. 输入组件的“专业客户端”质感 */
-        .stTextInput input, .stNumberInput input, .stDateInput input, .stTextArea textarea {
+        .stTextInput input, .stNumberInput input, .stDateInput input {
             background-color: #0D0D0F !important; /* 输入框内嵌深色，产生层次 */
             border: 1px solid #232326 !important;
             border-radius: 8px !important;
@@ -65,14 +59,30 @@ def inject_professional_ui():
             box-shadow: none !important;
             transition: all 0.2s ease !important;
         }
-        .stTextArea textarea { height: 110px !important; line-height: 1.6 !important; padding: 12px 16px !important; }
+
+        /* 💥 像素级栅格补偿：修复“事由摘要”文本框与其他两行输入框的总高度对齐问题 */
+        .stTextArea textarea { 
+            background-color: #0D0D0F !important;
+            border: 1px solid #232326 !important;
+            border-radius: 8px !important;
+            color: #EDEDED !important;
+            font-size: 14px !important;
+            height: 140px !important;       /* 精准高度拉伸 */
+            line-height: 1.6 !important; 
+            padding: 12px 16px !important; 
+            box-shadow: none !important;
+            transition: all 0.2s ease !important;
+        }
+        [data-testid="stTextArea"] {
+            margin-bottom: 2px !important;  /* 消除底部多余外边距，完美贴合 */
+        }
 
         /* 下拉菜单扁平与颜色联动 */
         div[data-baseweb="select"] {
             border: 1px solid #232326 !important;
             border-radius: 8px !important;
             height: 48px !important;
-            transition: all 0.3s ease !important;
+            transition: all 0.3s ease !important; /* 颜色切换丝滑过渡 */
         }
         div[data-baseweb="select"] > div { background-color: transparent !important; border: none !important; }
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
@@ -81,13 +91,17 @@ def inject_professional_ui():
         }
         div[data-baseweb="select"] span[data-baseweb="icon"] { color: #8A8A93 !important; }
         
+        /* 下拉菜单面板扁平化 */
+        div[data-baseweb="menu"] { background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; }
+        div[data-baseweb="menu"] div { font-size: 14px !important; color: #A0A0A5 !important; padding: 8px 12px !important; }
+
         /* 交互反馈 */
         .stTextInput input:focus, div[data-baseweb="select"]:focus-within, .stTextArea textarea:focus {
             border-color: #4A4A52 !important;
             background-color: #121214 !important;
         }
 
-        /* 4. 标签文字 (Muli 风格的精致副标题) */
+        /* 4. 标签文字 (精致副标题) */
         .stMarkdown label, p, .stWidgetLabel { 
             font-size: 13px !important; 
             font-weight: 500 !important; 
@@ -96,34 +110,28 @@ def inject_professional_ui():
             letter-spacing: 0.5px !important;
         }
 
-        /* 5. 按钮重构：通栏、极简、暗黑 */
-        /* 表单内的提交按钮重构为无缝通栏 */
-        [data-testid="stForm"] .stButton>button {
-            background-color: #1C1C1E !important; 
-            color: #E6E6E6 !important;
-            border: none !important;
-            border-top: 1px solid #2C2C2E !important;
-            border-radius: 0 0 12px 12px !important; /* 仅底角有圆角，贴合卡片 */
-            height: 56px !important;
-            font-weight: 500 !important;
-            font-size: 15px !important;
-            margin-top: 16px !important;
-            width: calc(100% + 64px) !important; /* 拉宽填满卡片 */
-            margin-left: -32px !important;
-            display: flex !important; justify-content: center !important; align-items: center !important;
-        }
-        /* 普通独立按钮 (如登录、更新) */
+        /* 5. 💥 按钮重构致敬参考图：通栏、极简、暗黑、靠右对齐 */
         .stButton>button {
-            background-color: #1A1A1D !important;
-            border: 1px solid #2C2C30 !important;
-            color: #D4D4D8 !important;
-            border-radius: 8px !important;
-            height: 48px !important;
-            font-weight: 500 !important;
+            background-color: #151516 !important; 
+            color: #A0A0A5 !important;            
+            border: none !important;
+            border-top: 1px solid #2C2C2E !important;    
+            border-bottom: 1px solid #2C2C2E !important; 
+            border-radius: 0 !important;                 /* 彻底砍掉圆角 */
+            height: 54px !important;
+            font-weight: 400 !important;
+            font-size: 15px !important;
+            margin-top: 12px !important;
+            display: flex !important;
+            justify-content: flex-end !important; /* 文字强制靠右对齐 */
+            align-items: center !important;
+            padding-right: 24px !important;       /* 右侧留白呼吸感 */
+            box-shadow: none !important;
             width: 100% !important;
-            transition: all 0.2s ease;
+            transition: all 0.2s ease !important;
         }
-        .stButton>button:hover { background-color: #27272A !important; border-color: #3F3F46 !important; color: #FFFFFF !important; }
+        .stButton > button span { width: auto !important; display: inline-block !important; text-align: right !important; }
+        .stButton>button:hover { background-color: #1E1E20 !important; color: #FFFFFF !important; }
 
         /* 6. 表格与指标卡极致扁平 */
         [data-testid="stDataFrame"] { border: none !important; background-color: transparent !important; }
@@ -140,7 +148,7 @@ def inject_professional_ui():
 inject_professional_ui()
 
 # ==========================================
-# ☁️ 核心数据逻辑 (底层稳固，不作修改)
+# ☁️ 核心数据逻辑
 # ==========================================
 COLUMNS = ['月份', '序号', '时间', '总类别', '子类别', '摘要', '人员', '人数', '出发地/目的地', '金额', '申请人', '申报状态', '备注', '录入人', '录入时间']
 
@@ -177,35 +185,32 @@ def save_data_to_cloud(df):
         records = df.to_dict(orient="records")
         requests.put(url, json=records, headers=headers)
     except Exception:
-        st.error("网络异常，无法同步")
+        st.error("网络异常，无法同步至云端")
 
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录验证模块 (卡片式登录)
+# 🔒 登录验证模块 (纯中文系统鉴权)
 # ==========================================
 def login():
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
-        st.markdown("<h2 style='text-align: center; color: #EDEDED; font-weight: 600; letter-spacing: 1px;'>System Access</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #8A8A93; margin-bottom: 30px;'>2026 禹来环保财务管控库</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #EDEDED; font-weight: 600; letter-spacing: 1px;'>系统安全鉴权</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #8A8A93; margin-bottom: 30px;'>禹来环保 2026 核心财务数据节点</p>", unsafe_allow_html=True)
         
-        with st.form("login_form"):
-            username = st.text_input("User ID")
-            password = st.text_input("Access Key", type="password")
-            st.markdown("<br>", unsafe_allow_html=True)
-            submitted = st.form_submit_button("Authenticate")
-            
-            if submitted:
-                creds = st.secrets.get("credentials", {})
-                if username in creds and creds[username]["password"] == password:
-                    st.session_state["logged_in"] = True
-                    st.session_state["username"] = username
-                    st.session_state["role"] = creds[username]["role"]
-                    st.rerun()
-                else:
-                    st.error("Invalid credentials.")
+        username = st.text_input("登录账号")
+        password = st.text_input("安全密钥", type="password")
+        
+        if st.button("验证登录"):
+            creds = st.secrets.get("credentials", {})
+            if username in creds and creds[username]["password"] == password:
+                st.session_state["logged_in"] = True
+                st.session_state["username"] = username
+                st.session_state["role"] = creds[username]["role"]
+                st.rerun()
+            else:
+                st.error("身份验证失败，账号或密码不匹配。")
 if not st.session_state.get("logged_in", False):
     login()
     st.stop()
@@ -216,67 +221,66 @@ if not st.session_state.get("logged_in", False):
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"<h3 style='color:#EDEDED; font-weight:600; font-size: 20px;'>{st.session_state['username']}</h3>", unsafe_allow_html=True)
-    st.markdown(f"<span style='color: #8A8A93; font-size: 13px; font-weight: 500; padding: 4px 8px; background: #1C1C1E; border-radius: 4px;'>{'ADMINISTRATOR' if st.session_state['role'] == 'admin' else 'NODE OPERATOR'}</span><br><br><br>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color: #8A8A93; font-size: 13px; font-weight: 500; padding: 4px 8px; background: #1C1C1E; border-radius: 4px;'>{'最高权限管理员' if st.session_state['role'] == 'admin' else '业务节点操作员'}</span><br><br><br>", unsafe_allow_html=True)
     
-    if st.button("Sync Cloud Data"):
+    if st.button("同步底层数据"):
         load_data_from_cloud.clear()
         st.session_state.df = load_data_from_cloud()
         st.rerun()
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Terminate Session"):
+    if st.button("安全退出系统"):
         st.session_state.clear()
         st.rerun()
 
 # ==========================================
 # 🖥️ 主体界面渲染
 # ==========================================
-st.markdown("<h2 style='color:#EDEDED; font-weight:600; margin-bottom: 24px; font-size: 28px;'>Workspace</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='color:#EDEDED; font-weight:600; margin-bottom: 24px; font-size: 28px;'>核心工作台</h2>", unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["Data Entry", "Audit Ledger", "Analytics"])
+tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
-    # 💥 卡片式表单结构
-    with st.form("add_form", clear_on_submit=True):
-        st.markdown("<h4 style='font-weight: 600; font-size:16px; color:#EDEDED; margin-bottom: 24px;'>Create New Record</h4>", unsafe_allow_html=True)
+    st.markdown("<div style='background-color:#161618; border:1px solid #232326; border-radius:12px; padding: 32px 32px 16px 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom:32px;'>", unsafe_allow_html=True)
+    st.markdown("<h4 style='font-weight: 600; font-size:16px; color:#EDEDED; margin-bottom: 24px;'>创建台账记录</h4>", unsafe_allow_html=True)
+    
+    # 取消 st.form，实现下拉框实时渲染反馈
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        date = st.date_input("发生时间", datetime.date.today())
+        main_cat = st.selectbox("总类别", list(CAT_COLORS.keys()))
+        sub_cat = st.text_input("子类别")
+        amount = st.number_input("报销金额 (元)", min_value=0.0, step=0.01)
+    with col2:
+        # 这里的文本框通过前面的 CSS 已被精确拉伸到 140px，完美对齐两边栅格
+        summary = st.text_area("事由摘要")
+        people = st.text_input("涉及人员")
+        num_people = st.number_input("参与人数", min_value=1, value=1)
+    with col3:
+        location = st.text_input("目的地 / 行程")
+        status = st.selectbox("当前申报状态", list(STATUS_COLORS.keys()))
+        applicant = st.text_input("提交申请人", value=st.session_state["username"])
+        remarks = st.text_input("补充备注信息")
         
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            date = st.date_input("Transaction Date", datetime.date.today())
-            main_cat = st.selectbox("Primary Category", list(CAT_COLORS.keys()))
-            sub_cat = st.text_input("Sub Category")
-            amount = st.number_input("Amount (CNY)", min_value=0.0, step=0.01)
-        with col2:
-            summary = st.text_area("Description")
-            people = st.text_input("Involved Personnel")
-            num_people = st.number_input("Headcount", min_value=1, value=1)
-        with col3:
-            location = st.text_input("Location / Route")
-            status = st.selectbox("Current Status", list(STATUS_COLORS.keys()))
-            applicant = st.text_input("Applicant", value=st.session_state["username"])
-            remarks = st.text_input("Additional Remarks")
-            
-        # 表单内置通栏按钮
-        submitted = st.form_submit_button("Commit to Database")
-        if submitted:
-            month_str = f"{date.month:02d}"
-            year_month = f"{date.year % 100:02d}{month_str}"
-            current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
-            serial = f"CL{year_month}{len(current_month_df) + 1:03d}"
-            
-            new_row = {
-                '月份': month_str, '序号': serial, '时间': date.strftime("%Y.%m.%d"),
-                '总类别': main_cat, '子类别': sub_cat, '摘要': summary, '人员': people, '人数': num_people, '出发地/目的地': location,
-                '金额': amount, '申请人': applicant, '申报状态': status, '备注': remarks,
-                '录入人': st.session_state["username"], '录入时间': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
-            save_data_to_cloud(st.session_state.df)
-            st.success(f"Record successfully generated. Serial: {serial}")
-            
+    if st.button("确认并写入数据库"):
+        month_str = f"{date.month:02d}"
+        year_month = f"{date.year % 100:02d}{month_str}"
+        current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
+        serial = f"CL{year_month}{len(current_month_df) + 1:03d}"
+        
+        new_row = {
+            '月份': month_str, '序号': serial, '时间': date.strftime("%Y.%m.%d"),
+            '总类别': main_cat, '子类别': sub_cat, '摘要': summary, '人员': people, '人数': num_people, '出发地/目的地': location,
+            '金额': amount, '申请人': applicant, '申报状态': status, '备注': remarks,
+            '录入人': st.session_state["username"], '录入时间': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
+        save_data_to_cloud(st.session_state.df)
+        st.success(f"数据记录生成成功。系统防伪单号: {serial}")
+        
+    st.markdown("</div>", unsafe_allow_html=True)
+        
     # 💥 动态 CSS 注入：捕捉选项变化，赋予下拉框低纯度暗色背景
     st.markdown(f"""
         <style>
-        /* 劫持第一个和第二个下拉框，赋予极具质感的低明度色彩 */
         [data-testid="column"]:nth-of-type(1) div[data-baseweb="select"] {{
             background-color: {CAT_COLORS[main_cat]['bg']} !important;
             border-color: {CAT_COLORS[main_cat]['border']} !important;
@@ -288,15 +292,14 @@ with tab1:
     """, unsafe_allow_html=True)
 
 with tab2:
-    st.markdown("<p style='color:#8A8A93; font-size:14px; margin-bottom:12px; font-weight:500;'>READ-ONLY STREAM</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#8A8A93; font-size:14px; margin-bottom:12px; font-weight:500;'>全局数据流 (只读)</p>", unsafe_allow_html=True)
     display_df = st.session_state.df.copy()
     if not display_df.empty: display_df['金额'] = pd.to_numeric(display_df['金额']).map("{:.2f}".format)
-    # 嵌套在一个卡片 div 中以保持整体风格
     st.markdown("<div style='background-color:#161618; border:1px solid #232326; border-radius:12px; padding: 16px; margin-bottom:32px;'>", unsafe_allow_html=True)
     st.dataframe(apply_color_style(display_df), use_container_width=True, height=250)
     st.markdown("</div>", unsafe_allow_html=True)
     
-    st.markdown("<p style='color:#8A8A93; font-size:14px; margin-bottom:12px; font-weight:500;'>AUDIT & OVERRIDE</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#8A8A93; font-size:14px; margin-bottom:12px; font-weight:500;'>审计与覆写终端</p>", unsafe_allow_html=True)
     if st.session_state["role"] == "admin":
         editable_df = st.session_state.df.copy()
     else:
@@ -311,44 +314,40 @@ with tab2:
 
     st.markdown("<div style='background-color:#161618; border:1px solid #232326; border-radius:12px; padding: 16px; margin-bottom:16px;'>", unsafe_allow_html=True)
     if editable_df.empty and st.session_state["role"] != "admin":
-        st.info("No active records available for editing within the 12-hour window.")
+        st.info("当前 12 小时内暂无您可编辑的活跃记录。")
     else:
         edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
         st.markdown("</div>", unsafe_allow_html=True)
-        col_btn1, col_btn2, col_btn3 = st.columns([1,2,1])
-        with col_btn2:
-            if st.button("Push Overrides to Cloud"):
-                if st.session_state["role"] == "admin": st.session_state.df = edited_subset
-                else:
-                    main_df = st.session_state.df[~st.session_state.df['序号'].isin(edited_subset['序号'])].copy()
-                    st.session_state.df = pd.concat([main_df, edited_subset], ignore_index=True)
-                save_data_to_cloud(st.session_state.df)
-                st.success("Audit log synchronized.")
+        
+        if st.button("保存覆写记录至云端"):
+            if st.session_state["role"] == "admin": st.session_state.df = edited_subset
+            else:
+                main_df = st.session_state.df[~st.session_state.df['序号'].isin(edited_subset['序号'])].copy()
+                st.session_state.df = pd.concat([main_df, edited_subset], ignore_index=True)
+            save_data_to_cloud(st.session_state.df)
+            st.success("审计日志已成功同步。")
 
     if not st.session_state.df.empty and st.session_state["role"] == "admin":
         csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
         st.markdown("<br>", unsafe_allow_html=True)
-        col_dl1, col_dl2, col_dl3 = st.columns([1,2,1])
-        with col_dl2:
-            st.download_button("Export Raw Data (CSV)", data=csv, file_name="2026_ledger.csv", mime="text/csv")
+        st.download_button("导出底层原始数据 (CSV)", data=csv, file_name="2026_财务核心数据.csv", mime="text/csv")
 
 with tab3:
     if not st.session_state.df.empty:
         temp_df = st.session_state.df.copy()
         temp_df['金额'] = pd.to_numeric(temp_df['金额'], errors='coerce').fillna(0.0)
         
-        # 极具科技感的数据卡片
         st.markdown(f"""
         <div style='background: #161618; border: 1px solid #232326; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 32px;'>
-            <span style='color: #8A8A93; font-size: 14px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;'>Total Capital Outflow</span><br><br>
-            <span style='color: #EDEDED; font-size: 48px; font-weight: 600; letter-spacing: -1px;'>{temp_df['金额'].sum():.2f} <span style='font-size: 18px; color: #66666E;'>CNY</span></span>
+            <span style='color: #8A8A93; font-size: 14px; font-weight: 500; letter-spacing: 2px;'>年度累计资金流出总额</span><br><br>
+            <span style='color: #EDEDED; font-size: 48px; font-weight: 600; letter-spacing: -1px;'>{temp_df['金额'].sum():.2f} <span style='font-size: 18px; color: #66666E;'>元</span></span>
         </div>
         """, unsafe_allow_html=True)
         
         c1, c2 = st.columns(2)
         with c1:
             st.markdown("<div style='background-color:#161618; border:1px solid #232326; border-radius:12px; padding: 24px;'>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#8A8A93; font-size:13px; font-weight:500;'>ASSET ALLOCATION</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color:#8A8A93; font-size:13px; font-weight:500;'>核心资产流向矩阵</p>", unsafe_allow_html=True)
             fig = px.pie(temp_df.groupby('总类别')['金额'].sum().reset_index(), values='金额', names='总类别', hole=0.8, color='总类别', color_discrete_map=PLOTLY_COLORS)
             fig.update_traces(textinfo='none', marker=dict(line=dict(color='#161618', width=4)))
             fig.update_layout(margin=dict(t=10, b=10, l=10, r=10), paper_bgcolor='rgba(0,0,0,0)', font_color='#EDEDED', showlegend=True)
@@ -357,11 +356,11 @@ with tab3:
             
         with c2:
             st.markdown("<div style='background-color:#161618; border:1px solid #232326; border-radius:12px; padding: 24px; height: 100%;'>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#8A8A93; font-size:13px; font-weight:500;'>MONTHLY VELOCITY</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color:#8A8A93; font-size:13px; font-weight:500;'>月度资金消耗峰值</p>", unsafe_allow_html=True)
             fig_bar = px.bar(temp_df.groupby('月份')['金额'].sum().reset_index(), x='月份', y='金额', color_discrete_sequence=['#4A4A52'])
             fig_bar.update_layout(xaxis_type='category', margin=dict(t=10, b=10, l=10, r=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#EDEDED')
             st.plotly_chart(fig_bar, use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
     else:
-        st.info("System awaiting data nodes...")
+        st.info("系统正等待数据节点接入...")
