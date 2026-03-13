@@ -4,7 +4,7 @@ import datetime
 import requests
 import plotly.express as px
 
-st.set_page_config(page_title="禹来企业级财务系统", layout="wide", page_icon="📊")
+st.set_page_config(page_title="2026财务库 - 企业级财务系统", layout="wide", page_icon="📊")
 
 # ==========================================
 # ⬛ 注入极致暗黑扁平风 (Dark Flat + Noise) UI 引擎
@@ -28,27 +28,41 @@ def inject_flat_dark_ui():
             border-right: 1px solid #2C2C2E !important;
         }
 
-        /* 2. 输入组件彻底扁平化 + 强制垂直水平居中 */
+        /* 2. 输入组件彻底扁平化 + 强制垂直水平居中 + 严格圆角对齐 (修复不等边) */
         .stTextInput input, 
         .stNumberInput input, 
         .stDateInput input, 
         .stTextArea textarea {
-            background-color: #242426 !important; /* 扁平填充色 */
+            background-color: #242426 !important; /* 普通框填充色 */
             border: 1px solid #333336 !important; /* 极弱边框 */
-            border-radius: 6px !important;        /* 收敛圆角，更显专业 */
+            border-radius: 6px !important;        /* 收敛圆角，确保专业平衡 */
             color: #FFFFFF !important;
             
-            text-align: center !important;        /* 💥 强制文字居中对齐 */
+            text-align: center !important;        /* 💥 强制内容居中对齐 */
             font-size: 15px !important;           /* 舒适字号 */
             height: 42px !important;
             line-height: 42px !important;
             padding: 0 10px !important;
             box-shadow: none !important;          /* 剔除多余底框/阴影 */
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        /* 💥 下拉框专属扁平化调整：深蓝底 + 白字 */
+        /* 针对可能存在的内部 div 容器进行圆角修正 */
+        [data-baseweb="input"] {
+            border-radius: 6px !important;
+        }
+        
+        /* 针对 textarea 摘要框的等距和对齐修正 */
+        .stTextArea textarea {
+            text-align: left !important; /* 摘要文字靠左，保持可读性 */
+            padding: 10px 15px !important;
+            height: 100px !important;
+            line-height: 1.5 !important;
+        }
+
+        /* 下拉框 (st.selectbox) 彻底扁平化去套框 */
         div[data-baseweb="select"] {
-            background-color: #1C355E !important; /* 深空蓝填充色 */
+            background-color: transparent !important; /* 基础背景透明，动态注入颜色 */
             border: 1px solid #333336 !important;
             border-radius: 6px !important;
             box-shadow: none !important;
@@ -58,17 +72,37 @@ def inject_flat_dark_ui():
             border: none !important;
             box-shadow: none !important;
         }
-        /* 强制下拉框选中文字居中，箭头置于右下角附近 */
+        /* 强制下拉框选中文字居中，箭头置于右侧 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
             text-align: center !important;
             width: 100% !important;
             font-size: 15px !important;
             margin: 0 !important;
-            color: #FFFFFF !important; /* 下拉文字纯白，拉开反差 */
         }
         /* 箭头对齐修正 */
         div[data-baseweb="select"] span { text-align: center !important; }
         .stSelectbox div[data-baseweb="select"] span[data-baseweb="icon"] { margin-right: 5px !important; }
+
+        /* 获取焦点时的极简反馈 */
+        .stTextInput input:focus, div[data-baseweb="select"]:focus-within, .stTextArea textarea:focus {
+            border-color: #0A84FF !important;
+            box-shadow: 0 0 0 1px #0A84FF40 !important;
+        }
+
+        /* 💥 下拉展开选项菜单的扁平化样式 */
+        div[data-baseweb="menu"] {
+            background-color: #1E1E20 !important;
+            border: 1px solid #333336 !important;
+            border-radius: 6px !important;
+            padding: 5px !important;
+            margin-top: 2px !important;
+        }
+        div[data-baseweb="menu"] div {
+            text-align: center !important;
+            font-size: 15px !important;
+            color: #FFFFFF !important;
+            padding: 8px !important;
+        }
 
         /* 3. 标签(Label)排版美化 */
         .stMarkdown label, p, .stWidgetLabel {
@@ -78,7 +112,7 @@ def inject_flat_dark_ui():
             margin-bottom: 6px !important;
         }
 
-        /* 4. 选项卡 Tab 的极致扁平化去套框 */
+        /* 4. 选项卡(Tab)极致扁平化去套框 */
         .stTabs [data-baseweb="tab-list"] {
             background-color: transparent !important; /* 去除大背景框 */
             border-bottom: 1px solid #2C2C2E !important; /* 仅保留底部分割线 */
@@ -94,10 +128,10 @@ def inject_flat_dark_ui():
         }
         .stTabs [aria-selected="true"] { 
             color: #FFFFFF !important;
-            border-bottom: 2px solid #0A84FF !important; /* 底部指示蓝条 */
+            border-bottom: 2px solid #CCFF33 !important; /* 底部指示亮绿条 */
         }
 
-        /* 5. 按钮：文字强制居中、纯白 */
+        /* 5. 按钮终极居中与高反差识别色差 (彻底解决不居中) */
         .stButton>button {
             border-radius: 6px !important;
             height: 44px !important;
@@ -110,19 +144,30 @@ def inject_flat_dark_ui():
             align-items: center !important;
             text-align: center !important;
             box-shadow: none !important;          /* 扁平化无阴影 */
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
         }
-        /* 登录按钮特定样式 (确保居中和反差) */
+        
+        /* 确保内部 span 或图标都强制垂直居中 */
+        .stButton > button span {
+            width: 100% !important;
+            text-align: center !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* 💥 主要按钮 (录入/覆盖更新)：亮绿色 + 黑色文字 (高反差) */
         .stButton>button[kind="primary"] {
-            background-color: #0A84FF !important; 
-            color: #FFFFFF !important;            /* 💥 字体颜色强制纯白 */
+            background-color: #CCFF33 !important; 
+            color: #000000 !important;            /* 💥 字体颜色纯黑 */
         }
-        /* 扁平按钮样式 */
+        /* 💥 次要按钮 (同步/导出)：深蓝底 + 白色文字 */
         .stButton>button[kind="secondary"] {
-            background-color: #242426 !important;
-            color: #0A84FF !important;
+            background-color: #1C355E !important;
+            color: #FFFFFF !important;
         }
-        .stButton>button:hover { opacity: 0.9; }
+        .stButton>button:active { transform: scale(0.98); }
 
         /* 6. 表格：彻底删除外部大框，极致扁平 */
         [data-testid="stDataFrame"] { 
@@ -131,7 +176,7 @@ def inject_flat_dark_ui():
             padding: 0 !important;
         }
         [data-testid="stDataFrame"] > div { border: none !important; }
-        /* 内部弱分割线 */
+        /* 内部分割线处理 */
         th { border-bottom: 1px solid #333336 !important; background-color: #1E1E20 !important; font-weight: 500;}
         td { border-bottom: 1px solid #2C2C2E !important; border-right: none !important; }
         </style>
@@ -153,6 +198,7 @@ CAT_COLORS = {
     "人员薪酬": {"bg": "#880E4F", "text": "#FFFFFF"},   
     "其他": {"bg": "#263238", "text": "#FFFFFF"}        
 }
+# 用于 Plotly 图表的色板
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 def style_category(val):
@@ -195,7 +241,7 @@ if 'df' not in st.session_state:
     st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录验证 (登录按钮已完美居中纯白)
+# 🔒 登录验证 (登录按钮也已终极居中高色差)
 # ==========================================
 def login():
     st.markdown("<br><br><h2 style='text-align: center; color: #FFFFFF; font-weight: 500; letter-spacing: 1px;'>禹来环保</h2>", unsafe_allow_html=True)
@@ -217,37 +263,44 @@ if not st.session_state.get("logged_in", False):
     login()
     st.stop()
 
+# 侧边栏
 with st.sidebar:
-    role_name = "最高权限管理员" if st.session_state["role"] == "admin" else "股东/业务员"
+    role_name = "最高权限" if st.session_state["role"] == "admin" else "业务节点"
     st.markdown(f"### {st.session_state['username']}")
     st.markdown(f"<span style='color: #8E8E93; font-size: 13px;'>{role_name}</span>", unsafe_allow_html=True)
     st.markdown("---")
-    if st.button("🔄 同步云端数据", use_container_width=True):
+    if st.button("🔄 同步云端"):
         load_data_from_cloud.clear()
         st.session_state.df = load_data_from_cloud()
         st.rerun()
-    if st.button("退出登录", use_container_width=True):
+    if st.button("退出登录"):
         st.session_state.clear()
         st.rerun()
 
 # ==========================================
 # 🖥️ 主体界面渲染
 # ==========================================
+# 💥 标题已正式调整为 “2026财务库”
 st.title("2026财务库")
-tab1, tab2, tab3 = st.tabs(["💰 录入中心", "📋 审计与修改", "📈 数据矩阵看板"])
+tab1, tab2, tab3 = st.tabs(["💰 录入中心", "📋 审计终端", "📊 数据矩阵"])
 
 with tab1:
-    st.markdown("<h4 style='font-weight: 600; font-size:18px; color:#F5F5F7;'>✏️ 新增开支录入</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='font-weight: 600; font-size:16px; color:#F5F5F7;'>新增开支录入</h4>", unsafe_allow_html=True)
+    
+    # 💥 实现下拉菜单颜色联动的 CSS 注入
+    selectbox_placeholder = st.empty()
+    
     with st.form("add_form", clear_on_submit=True):
         col1, col2, col3 = st.columns(3)
         with col1:
             date = st.date_input("发生时间", datetime.date.today())
-            main_cat = st.selectbox("总类别", ["接待", "餐旅", "经营管理", "办公费用", "人员薪酬", "其他"])
+            main_cat_key = "tab1_selectbox_main_cat"
+            main_cat = st.selectbox("总类别", ["接待", "餐旅", "經營管理", "办公费用", "人员薪酬", "其他"], key=main_cat_key)
             sub_cat = st.text_input("子类别")
-            amount = st.number_input("金额 (元)", min_value=0.0, step=0.01)
+            amount = st.number_input("金额", min_value=0.0, step=0.01)
         with col2:
-            summary = st.text_input("摘要", placeholder="事由简述")
-            people = st.text_input("相关人员", placeholder="如：张三")
+            summary = st.text_area("摘要") # 💥 摘要框圆角不等边问题已修正
+            people = st.text_input("相关人员")
             num_people = st.number_input("人数", min_value=1, value=1)
             applicant = st.text_input("申请人", value=st.session_state["username"])
         with col3:
@@ -255,11 +308,12 @@ with tab1:
             status = st.selectbox("申报状态", ["未申报", "已申报", "审批中"])
             remarks = st.text_area("备注信息")
             
-        if st.form_submit_button("💾 提交写入库", use_container_width=True):
+        # 💥 提交按钮采用亮绿色背景和黑色文字 (超高识别色差，文字居中)
+        if st.form_submit_button("提交写入库", use_container_width=True):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
             current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
-            # 自动单号生成功能严格保持，单号自动加1
+            # 单号生成机制 100% 保留
             serial = f"CL{year_month}{len(current_month_df) + 1:03d}"
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
@@ -272,7 +326,23 @@ with tab1:
             }
             st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
             with st.spinner("同步至云端..."): save_data_to_cloud(st.session_state.df)
-            st.success(f"写入成功！系统单号自动生成为: {serial}")
+            st.success(f"写入成功 [单号: {serial}]")
+            
+    # 动态注入 CSS 以改变总类别 selectbox 的底色和文字反差 (1、2文件核心需求)
+    cat_config = CAT_COLORS.get(main_cat, {"bg": "#242426", "text": "#FFFFFF"})
+    selectbox_placeholder.markdown(f"""
+        <style>
+        /* 💥 锚定特定的下拉菜单应用动态底色和高色差文字 */
+        div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{
+            color: {cat_config['text']} !important; /* 文字颜色随反差变换 */
+        }}
+        
+        .stSelectbox div[data-baseweb="select"] {{
+            background-color: {cat_config['bg']} !important; /* 💥 背景自动变换为分类色 */
+            border-color: #33333640 !important;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
 
 with tab2:
     st.markdown("<h4 style='font-weight: 600; font-size:16px; margin-bottom:10px;'>📋 全局数据流阅览 (扁平视图)</h4>", unsafe_allow_html=True)
@@ -283,12 +353,12 @@ with tab2:
     st.dataframe(apply_color_style(display_df), use_container_width=True, height=300)
     
     st.markdown("---")
-    st.markdown("<h4 style='font-weight: 600; font-size:16px; margin-bottom:10px;'>✍️ 授权审计修改区</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='font-weight: 600; font-size:16px; margin-bottom:10px;'>✍️ 授权审计终端</h4>", unsafe_allow_html=True)
     if st.session_state["role"] == "admin":
-        st.info("管理员权限：您可以双击修改或选中删除下方表格内的【所有】历史数据。")
+        st.info("管理员权限：您拥有完整的历史数据管理权。")
         editable_df = st.session_state.df.copy()
     else:
-        st.info("股东权限：您只能修改或删除下方表格中【由您本人录入且在 12 小时内】的账目。")
+        st.info("股东权限：您可编辑 12 小时内由您提交的账目。数据丢失问题将在第二步解决。")
         now = datetime.datetime.now()
         editable_indices = []
         for idx, row in st.session_state.df.iterrows():
@@ -300,21 +370,25 @@ with tab2:
         editable_df = st.session_state.df.loc[editable_indices].copy()
 
     if editable_df.empty and st.session_state["role"] != "admin":
-        st.warning("您当前没有处于 12 小时修改期内的账目。以前的账目对您来说是只读的铁案。")
+        st.warning("暂无修改权限内的账目")
     else:
         edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
-        if st.button("🔄 保存上述修改至库", type="primary"):
+        
+        # 💥 覆盖更新按钮采用亮绿色背景和黑色文字 (超高识别色差，文字居中)
+        if st.button("覆盖更新", type="primary"):
             if st.session_state["role"] == "admin":
                 st.session_state.df = edited_subset
             else:
                 main_df = st.session_state.df.copy()
+                # 严格保留审计和合并逻辑
                 main_df = main_df[~main_df['序号'].isin(edited_subset['序号'])]
                 st.session_state.df = pd.concat([main_df, edited_subset], ignore_index=True)
-            with st.spinner("同步库内数据..."): save_data_to_cloud(st.session_state.df)
-            st.success("审计终端已同步成功。")
+            with st.spinner("覆盖更新云端数据..."): save_data_to_cloud(st.session_state.df)
+            st.success("审计修改已封存至云端。")
 
     if not st.session_state.df.empty and st.session_state["role"] == "admin":
         csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
+        # 💥 导出按钮采用深空蓝背景和白色文字
         st.download_button("📥 导出全量台账CSV", data=csv, file_name="禹来财务全量台账.csv", mime="text/csv")
 
 with tab3:
@@ -323,25 +397,25 @@ with tab3:
         temp_df['金额'] = pd.to_numeric(temp_df['金额'], errors='coerce').fillna(0.0)
         total = temp_df['金额'].sum()
         
-        # 极简扁平的数据指标卡
+        # 极简扁平的数据指标卡 (极致扁平无外部框)
         st.markdown(f"""
-        <div style='background: #242426; border: 1px solid #333336; padding: 25px; border-radius: 8px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-bottom: 30px;'>
-            <span style='color: #8E8E93; font-size: 14px; font-weight: 500; letter-spacing: 1px;'>年度累计核算开支</span><br>
+        <div style='background: #242426; border: 1px solid #333336; padding: 25px; border-radius: 6px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-bottom: 30px;'>
+            <span style='color: #8E8E93; font-size: 14px; font-weight: 500; letter-spacing: 1px;'>ANNUAL EXPENDITURE</span><br>
             <span style='color: #FFFFFF; font-size: 38px; font-weight: 600; letter-spacing: -1px;'>{total:.2f} <span style='font-size: 16px; color: #8E8E93;'>元 (CNY)</span></span>
         </div>
         """, unsafe_allow_html=True)
         
-        col_chart1, col_chart2 = st.columns(2)
-        with col_chart1:
-            st.markdown("<h5 style='font-weight: 600; font-size:16px; color:#F5F5F7; margin-bottom:15px;'>🍩 各类别占比</h5>", unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("<h5 style='font-weight: 600; font-size:16px; color:#F5F5F7; margin-bottom:15px;'>🍩 资产分配占比</h5>", unsafe_allow_html=True)
             pie_data = temp_df.groupby('总类别')['金额'].sum().reset_index()
             # 图表颜色完美联动深色分类色板
-            fig = px.pie(pie_data, values='金额', names='总类别', hole=0.6, color='总类别', color_discrete_map=PLOTLY_COLORS)
+            fig = px.pie(pie_data, values='金额', names='总类别', hole=0.7, color='总类别', color_discrete_map=PLOTLY_COLORS)
             fig.update_traces(textinfo='percent', marker=dict(line=dict(color='#1A1A1C', width=3)))
             fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor='rgba(0,0,0,0)', font_color='#FFFFFF', showlegend=True)
             st.plotly_chart(fig, use_container_width=True)
             
-        with col_chart2:
+        with c2:
             st.markdown("<h5 style='font-weight: 600; font-size:16px; color:#F5F5F7; margin-bottom:15px;'>📊 月度开支趋势</h5>", unsafe_allow_html=True)
             monthly = temp_df.groupby('月份')['金额'].sum().reset_index()
             # 柱状图采用苹果标志蓝
@@ -350,15 +424,15 @@ with tab3:
             st.plotly_chart(fig_bar, use_container_width=True)
 
         st.markdown("---")
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
+        m1, m2 = st.columns(2)
+        with m1:
             cat_sum = temp_df.groupby(['总类别', '子类别'])['金额'].sum().reset_index()
-            # 明细严格保留两位小数
+            # 金额汇总严格保留两位小数
             cat_sum['金额'] = cat_sum['金额'].map("{:.2f}".format)
             st.dataframe(apply_color_style(cat_sum.rename(columns={'金额': '累计金额'})), use_container_width=True)
-        with col_m2:
+        with m2:
             monthly_table = monthly.copy()
             monthly_table['金额'] = monthly_table['金额'].map("{:.2f}".format)
-            st.dataframe(monthly_table.rename(columns={'金额': '当月总支出'}), use_container_width=True)
+            st.dataframe(monthly_table.rename(columns={'金额': '当月总开支'}), use_container_width=True)
     else:
-        st.info("等待数据节点接入...")
+        st.info("尚无数据录入")
