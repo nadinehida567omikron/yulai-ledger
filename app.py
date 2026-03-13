@@ -7,23 +7,24 @@ import plotly.express as px
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🎨 赛博极简色盘与全局变量
+# 🎨 赛博极简色盘与全局变量 (已修复并回归低明度动态色系)
 # ==========================================
 BRAND_COLOR = "#a7f069" # 核心荧光绿
 BG_DARK = "#050505"     # 极深背景
 CARD_BG = "rgba(255, 255, 255, 0.02)" # 卡片底层透白
-BORDER_COLOR = "rgba(255, 255, 255, 0.08)" # 💥 极细半透明白边，不可或缺的精髓
+BORDER_COLOR = "rgba(255, 255, 255, 0.08)" # 极细半透明白边
 
+# 💥 完美修复：加回了低纯度色系和 border 键值，恢复色彩联动且解决 KeyError
 CAT_COLORS = {
-    "接待": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"},       
-    "餐旅": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"},       
-    "经营管理": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"},   
-    "办公费用": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"},   
-    "人员薪酬": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"},   
-    "其他": {"bg": "rgba(255,255,255,0.03)", "text": "#FFF"}        
+    "接待": {"bg": "#101D2B", "text": "#E6F0FA", "border": "#1A2E44"},       
+    "餐旅": {"bg": "#12261E", "text": "#E2F2EB", "border": "#1D3A2F"},       
+    "经营管理": {"bg": "#2A1E16", "text": "#F5EBE1", "border": "#3D2B20"},   
+    "办公费用": {"bg": "#22152E", "text": "#EFE6F7", "border": "#332044"},   
+    "人员薪酬": {"bg": "#291419", "text": "#F7E6EB", "border": "#3F1E26"},   
+    "其他": {"bg": "#1A1A1C", "text": "#EBEBEB", "border": "#2C2C2E"}        
 }
-STATUS_COLORS = { "已申报": "rgba(255,255,255,0.03)", "未申报": "rgba(255,255,255,0.03)", "审批中": "rgba(255,255,255,0.03)" }
-PLOTLY_COLORS = {k: BRAND_COLOR for k in CAT_COLORS.keys()}
+STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "#101D2B" }
+PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 def render_header(icon, title, desc):
     return f"""
@@ -35,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (细线框全面恢复版)
+# ⬛ 霓虹悬浮 CSS 引擎 
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -51,12 +52,10 @@ def inject_neon_ui():
         header {{ visibility: hidden !important; }} 
         [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* ============================================================== */
-        /* 💥 1. 25px圆角卡片与极细边框全面回归                             */
-        /* ============================================================== */
+        /* 1. 25px圆角卡片与极细边框全面回归 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
-            border: 1px solid {BORDER_COLOR} !important;  /* 💥 恢复极细半透明白框 */
+            border: 1px solid {BORDER_COLOR} !important;  
             border-radius: 25px !important;       
             padding: 36px 40px 24px 40px !important; 
             margin-bottom: 40px !important;
@@ -68,14 +67,12 @@ def inject_neon_ui():
         
         [data-testid="stVerticalBlockBorderWrapper"]:hover {{
             transform: translateY(-4px) !important; 
-            border-color: rgba(167, 240, 105, 0.4) !important; /* 悬停时边框点亮 */
+            border-color: rgba(167, 240, 105, 0.4) !important; 
             box-shadow: 0 15px 40px -10px rgba(167, 240, 105, 0.15), 0 0 25px rgba(167, 240, 105, 0.08) !important;
             z-index: 10;
         }}
 
-        /* ============================================================== */
-        /* 💥 2. 头部结构：图标 -> 标题 -> 描述                           */
-        /* ============================================================== */
+        /* 2. 头部结构 */
         .card-header-wrapper {{ display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 24px; }}
         .icon-container {{
             width: 42px; height: 42px;
@@ -97,12 +94,10 @@ def inject_neon_ui():
             box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* ============================================================== */
-        /* 💥 3. 组件底座极细边框归一化                                     */
-        /* ============================================================== */
+        /* 3. 组件底座极细边框归一化 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.2) !important;
-            border: 1px solid {BORDER_COLOR} !important; /* 💥 确保内部组件也有白边 */
+            border: 1px solid {BORDER_COLOR} !important; 
             border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
@@ -131,7 +126,7 @@ def inject_neon_ui():
         [data-testid="stNumberInput"] input {{ height: 48px !important; line-height: 48px !important; padding: 0 12px !important; }}
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 48px !important; width: 36px !important; border: none !important; }}
         
-        /* 日期选择器靶向清除多余底座，防止双重边框 */
+        /* 日期选择器靶向清除 */
         .stDateInput div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; }}
 
         /* 下拉框文字居中 */
@@ -149,21 +144,17 @@ def inject_neon_ui():
 
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
-        /* ============================================================== */
-        /* 💥 4. 按钮引擎：强制横向居中，暗黑反差                           */
-        /* ============================================================== */
+        /* 4. 按钮引擎 */
         .stButton>button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important;    
             border-radius: 12px !important;                 
             height: 54px !important; font-weight: 500 !important; font-size: 15px !important;
-            display: flex !important; 
-            justify-content: center !important; /* 💥 强制按钮内容绝对居中 */
-            align-items: center !important; width: 100% !important;
+            display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important;
             transition: all 0.4s ease !important; margin-top: 12px !important;
         }}
-        .stButton>button span {{ display: block !important; text-align: center !important; width: 100% !important; }} /* 确保内部 span 也是居中 */
+        .stButton>button span {{ display: block !important; text-align: center !important; width: 100% !important; }} 
         
         .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
         .stButton>button[kind="primary"]:hover {{ background-color: {BRAND_COLOR} !important; color: #000000 !important; box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; }}
@@ -223,18 +214,17 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录鉴权 (纯英文按钮居中版)
+# 🔒 登录鉴权
 # ==========================================
 def login():
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
-        with st.container(border=True): # 确保登录框也有极细白边和悬浮动效
+        with st.container(border=True): 
             st.markdown(render_header("🔐", "系统安全鉴权", "请验证您的管理密钥以访问核心财务节点"), unsafe_allow_html=True)
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 登录按钮：全英文，居中对齐
             if st.button("SYSTEM AUTHENTICATION", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -270,7 +260,6 @@ st.markdown("<h2 style='color:#FFF; font-weight:600; margin-bottom: 32px; font-s
 tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
-    # 区块 A：1排4列 矩阵 (带边框)
     with st.container(border=True):
         st.markdown(render_header("📊", "核心账目核算", "请在此准确定义费用的属性及流出金额"), unsafe_allow_html=True)
         a_col1, a_col2, a_col3, a_col4 = st.columns(4) 
@@ -285,7 +274,6 @@ with tab1:
         with a2_col3: st.empty() 
         with a2_col4: st.empty() 
 
-    # 区块 B：1排4列 矩阵 (带边框)
     with st.container(border=True):
         st.markdown(render_header("📍", "业务执行追踪", "关联业务实际发生地点与参与详情"), unsafe_allow_html=True)
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
@@ -294,7 +282,6 @@ with tab1:
         with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1)
         with b_col4: summary = st.text_input("事由摘要", placeholder="精确描述业务动向") 
 
-    # 区块 C：1排4列 矩阵 (带边框)
     with st.container(border=True):
         st.markdown(render_header("⚡", "审计与提交流", "确认申报状态并进行底层数据封装"), unsafe_allow_html=True)
         c_col1, c_col2, c_col3, c_col4 = st.columns(4)
@@ -303,7 +290,6 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 英文横向居中提交按钮
         if st.button("COMMIT TRANSACTION", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -320,7 +306,7 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"审计日志链已生成。标识: {serial}")
 
-    # 动态 CSS 色彩引擎
+    # 💥 修正后的色彩联动引擎
     st.markdown(f"""
         <style>
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
@@ -329,6 +315,7 @@ with tab1:
         }}
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(3) [data-testid="column"]:nth-of-type(1) div[data-baseweb="select"] {{
             background-color: {STATUS_COLORS[status]} !important;
+            border-color: {STATUS_COLORS[status].replace("0.8", "0.5")} !important; /* 状态边框动态计算 */
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -359,7 +346,6 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            # 💥 英文横向居中更新按钮
             if st.button("SYNCHRONIZE OVERRIDES", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
