@@ -7,7 +7,7 @@ import plotly.express as px
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🎨 专业级色盘配置
+# 🎨 专业级色盘配置 
 # ==========================================
 CAT_COLORS = {
     "接待": {"bg": "#101D2B", "text": "#E6F0FA", "border": "#1A2E44"},       
@@ -21,7 +21,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# ⬛ 模块化内容矩阵 CSS 引擎 (已修复日期框)
+# ⬛ 矩阵化 & 底座归一化 CSS 引擎 
 # ==========================================
 def inject_matrix_ui():
     st.markdown("""
@@ -47,7 +47,7 @@ def inject_matrix_ui():
             margin-bottom: 28px !important;
         }
 
-        /* 区块内小标题排版 */
+        /* 小标题排版 */
         .block-title {
             color: #EBEBEB;
             font-size: 16px;
@@ -58,54 +58,68 @@ def inject_matrix_ui():
             letter-spacing: 1px;
         }
 
-        /* 统一输入组件高度 */
-        .stTextInput input, .stNumberInput input, .stDateInput input {
-            background-color: #0D0D0F !important; 
+        /* ============================================================== */
+        /* 💥 核心革新：全局组件底座归一化 (Wrapper Unification)           */
+        /* 强行统一文本、数字、日期、下拉框的外壳，高度死死锁定 48px      */
+        /* ============================================================== */
+        
+        /* 1. 统一最外层底座容器 */
+        div[data-baseweb="input"], 
+        div[data-baseweb="select"] {
+            background-color: #0D0D0F !important;
             border: 1px solid #232326 !important;
             border-radius: 8px !important;
-            color: #EDEDED !important;
-            font-size: 14px !important;
-            height: 48px !important;              
-            line-height: 48px !important;
-            padding: 0 16px !important;
-            box-shadow: none !important;
+            height: 48px !important;            /* 绝对统一高度 */
+            min-height: 48px !important;
+            box-sizing: border-box !important;
             transition: all 0.2s ease !important;
-            margin-bottom: 8px !important;
+            display: flex !important;
+            align-items: center !important;
         }
 
-        /* 💥 靶向清除日期选择器的“多余底座”，解决双层边框问题 */
-        .stDateInput div[data-baseweb="input"] {
+        /* 2. 彻底剥离组件内部夹层的边框和背景 (消灭双层套匣子) */
+        div[data-baseweb="input"] > div, 
+        div[data-baseweb="select"] > div {
+            border: none !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+
+        /* 3. 剥离实际 input 标签自带样式，只做纯净的文字载体 */
+        div[data-baseweb="input"] input {
             background-color: transparent !important;
             border: none !important;
-            box-shadow: none !important;
-        }
-        /* 确保日期右侧如果有日历图标，颜色正常且不产生背板 */
-        .stDateInput div[data-baseweb="input"] > div {
-            background-color: transparent !important;
+            color: #EDEDED !important;
+            font-size: 14px !important;
+            text-align: center !important;     /* 统一文字居中 */
+            height: 100% !important;
+            padding: 0 16px !important;
         }
 
-        div[data-baseweb="select"] {
-            border: 1px solid #232326 !important;
-            border-radius: 8px !important;
-            height: 48px !important;
-            margin-bottom: 8px !important;
-            transition: all 0.3s ease !important; 
-        }
-        div[data-baseweb="select"] > div { background-color: transparent !important; border: none !important; }
+        /* 4. 针对数字控件 (+/-号) 及 日历图标的微调 */
+        div[data-baseweb="input"] button { background-color: transparent !important; color: #8A8A93 !important; }
+        div[data-baseweb="select"] span[data-baseweb="icon"] { color: #8A8A93 !important; margin-right: 12px !important; }
+
+        /* 5. 下拉菜单内部文字强制居中 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
             font-size: 14px !important; margin: 0 !important; color: #EDEDED !important; font-weight: 500 !important;
-            padding-left: 8px !important;
+            text-align: center !important; width: 100% !important;
         }
-        div[data-baseweb="select"] span[data-baseweb="icon"] { color: #8A8A93 !important; }
-        div[data-baseweb="menu"] { background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; }
-        div[data-baseweb="menu"] div { font-size: 14px !important; color: #A0A0A5 !important; padding: 8px 12px !important; }
-
-        .stTextInput input:focus, div[data-baseweb="select"]:focus-within, .stDateInput input:focus {
+        
+        /* 6. 统一焦点与悬停状态反馈 */
+        div[data-baseweb="input"]:focus-within, 
+        div[data-baseweb="select"]:focus-within {
             border-color: #4A4A52 !important;
             background-color: #121214 !important;
+            box-shadow: 0 0 0 1px #4A4A52 !important; /* 增加高级微光轮廓 */
         }
+        
+        /* 下拉展开面板 */
+        div[data-baseweb="menu"] { background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; margin-top: 4px !important;}
+        div[data-baseweb="menu"] div { font-size: 14px !important; color: #A0A0A5 !important; padding: 8px 12px !important; text-align: center !important; }
 
-        /* 标签排版对齐 */
+        /* 标签对齐 */
         .stMarkdown label, p, .stWidgetLabel { 
             font-size: 13px !important; 
             font-weight: 500 !important; 
@@ -114,7 +128,7 @@ def inject_matrix_ui():
             letter-spacing: 0.5px !important;
         }
 
-        /* 通栏操作区按钮 */
+        /* 极简通栏按钮 */
         .stButton>button {
             background-color: #1A1A1D !important; 
             color: #A0A0A5 !important;            
@@ -150,7 +164,7 @@ def inject_matrix_ui():
 inject_matrix_ui()
 
 # ==========================================
-# ☁️ 核心数据逻辑 
+# ☁️ 核心数据逻辑
 # ==========================================
 COLUMNS = ['月份', '序号', '时间', '总类别', '子类别', '摘要', '人员', '人数', '出发地/目的地', '金额', '申请人', '申报状态', '备注', '录入人', '录入时间']
 
@@ -291,7 +305,7 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"审计日志链已生成。数据节点防伪标识: {serial}")
         
-    # 动态 CSS 引擎
+    # 动态 CSS 引擎保持不变，精准定位变色
     st.markdown(f"""
         <style>
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
