@@ -4,11 +4,10 @@ import datetime
 import requests
 import plotly.express as px
 
-# 隐藏 Streamlit 默认的顶部导航和汉堡菜单，打造纯净客户端体验
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🎨 专业级色盘配置 (严格保持深色调不同色相)
+# 🎨 专业级色盘配置
 # ==========================================
 CAT_COLORS = {
     "接待": {"bg": "#101D2B", "text": "#E6F0FA", "border": "#1A2E44"},       
@@ -22,7 +21,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# ⬛ 模块化内容矩阵 CSS 引擎 (去边框版)
+# ⬛ 模块化内容矩阵 CSS 引擎 (已修复日期框)
 # ==========================================
 def inject_matrix_ui():
     st.markdown("""
@@ -38,14 +37,14 @@ def inject_matrix_ui():
         header { visibility: hidden !important; } 
         [data-testid="block-container"] { padding-top: 2rem !important; }
 
-        /* 💥 区块外轮廓配置：💥 移除了边框(border)，纯色块悬浮感 */
+        /* 区块外轮廓配置 */
         [data-testid="stVerticalBlockBorderWrapper"] {
             background-color: #161618 !important; 
-            border: none !important;              /* 💥 彻底去除外圈细线框 */
+            border: none !important; 
             border-radius: 12px !important;       
             padding: 28px 32px 16px 32px !important; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important; /* 稍微加深阴影增强层次 */
-            margin-bottom: 28px !important;       /* 增加间距保持秩序 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important; 
+            margin-bottom: 28px !important;
         }
 
         /* 区块内小标题排版 */
@@ -74,6 +73,17 @@ def inject_matrix_ui():
             margin-bottom: 8px !important;
         }
 
+        /* 💥 靶向清除日期选择器的“多余底座”，解决双层边框问题 */
+        .stDateInput div[data-baseweb="input"] {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        /* 确保日期右侧如果有日历图标，颜色正常且不产生背板 */
+        .stDateInput div[data-baseweb="input"] > div {
+            background-color: transparent !important;
+        }
+
         div[data-baseweb="select"] {
             border: 1px solid #232326 !important;
             border-radius: 8px !important;
@@ -90,7 +100,7 @@ def inject_matrix_ui():
         div[data-baseweb="menu"] { background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; }
         div[data-baseweb="menu"] div { font-size: 14px !important; color: #A0A0A5 !important; padding: 8px 12px !important; }
 
-        .stTextInput input:focus, div[data-baseweb="select"]:focus-within {
+        .stTextInput input:focus, div[data-baseweb="select"]:focus-within, .stDateInput input:focus {
             border-color: #4A4A52 !important;
             background-color: #121214 !important;
         }
@@ -230,7 +240,7 @@ tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
     
-    # 💥 区块 A：核心账目区块 (💥 此处 border 已改为 False)
+    # 💥 区块 A：核心账目区块 
     with st.container(border=False):
         st.markdown("<div class='block-title'>核心账目核算维度</div>", unsafe_allow_html=True)
         a_col1, a_col2, a_col3 = st.columns(3) 
@@ -243,7 +253,7 @@ with tab1:
         with a2_col2: remarks = st.text_input("补充备注信息", placeholder="选填")
         with a2_col3: st.empty() 
 
-    # 💥 区块 B：业务执行区块 (💥 此处 border 已改为 False)
+    # 💥 区块 B：业务执行区块 
     with st.container(border=False):
         st.markdown("<div class='block-title'>业务执行细节追踪</div>", unsafe_allow_html=True)
         b_col1, b_col2, b_col3 = st.columns(3) 
@@ -256,7 +266,7 @@ with tab1:
         with b2_col2: st.empty()
         with b2_col3: st.empty()
 
-    # 💥 区块 C：审计与控制区块 (💥 此处 border 已改为 False)
+    # 💥 区块 C：审计与控制区块 
     with st.container(border=False):
         st.markdown("<div class='block-title'>审计控制与提交流</div>", unsafe_allow_html=True)
         c_col1, c_col2, c_col3 = st.columns(3)
@@ -265,7 +275,6 @@ with tab1:
         with c_col3: st.empty() 
         
         st.markdown("<br>", unsafe_allow_html=True)
-        # 💥 动态色板反馈逻辑严格保持
         if st.button("封装记录并写入底层数据库", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -282,15 +291,13 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"审计日志链已生成。数据节点防伪标识: {serial}")
         
-    # 💥 动态 CSS 色彩引擎：依然瞄准去框后的色块进行精确反馈
+    # 动态 CSS 引擎
     st.markdown(f"""
         <style>
-        /* 区块A内的总类别背景反馈 */
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
             background-color: {CAT_COLORS[main_cat]['bg']} !important;
             border-color: {CAT_COLORS[main_cat]['border']} !important;
         }}
-        /* 区块C内的申报状态背景反馈 */
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(3) [data-testid="column"]:nth-of-type(1) div[data-baseweb="select"] {{
             background-color: {STATUS_COLORS[status]} !important;
         }}
@@ -301,7 +308,6 @@ with tab2:
     st.markdown("<p style='color:#8A8A93; font-size:14px; margin-bottom:12px; font-weight:500;'>全局数据流 (只读节点)</p>", unsafe_allow_html=True)
     display_df = st.session_state.df.copy()
     if not display_df.empty: display_df['金额'] = pd.to_numeric(display_df['金额']).map("{:.2f}".format)
-    # 此处也去除了边框线，仅保留背景色和阴影
     st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 16px; margin-bottom:32px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>", unsafe_allow_html=True)
     st.dataframe(apply_color_style(display_df), use_container_width=True, height=250)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -344,11 +350,10 @@ with tab3:
         temp_df = st.session_state.df.copy()
         temp_df['金额'] = pd.to_numeric(temp_df['金额'], errors='coerce').fillna(0.0)
         
-        # 此处也去除了边框线，增强数据卡片的悬浮感
         st.markdown(f"""
         <div style='background: #161618; border: none; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>
             <span style='color: #8A8A93; font-size: 14px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;'>年度全域资金净流出量</span><br><br>
-            <span style='color: #EDEDED; font-size: 48px; font-weight: 600; letter-spacing: -1px;'>{temp_df['金额'].sum():.2f} <span style='font-size: 18px; color: #66666E;'>元</span></span>
+            <span style='color: #EDEDED; font-size: 48px; font-weight: 600; letter-spacing: -1px;'>{temp_df['金额'].sum():.2f} <span style='font-size: 18px; color: #66666E;'>CNY</span></span>
         </div>
         """, unsafe_allow_html=True)
         
