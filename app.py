@@ -4,6 +4,7 @@ import datetime
 import requests
 import plotly.express as px
 
+# 保持 wide 以免被默认居中挤压得太窄，后续我们用自定义 CSS 控制完美宽度
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
@@ -21,7 +22,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# ⬛ 矩阵化 & 底座归一化 CSS 引擎 
+# ⬛ 矩阵化 & 聚焦居中 CSS 引擎 
 # ==========================================
 def inject_matrix_ui():
     st.markdown("""
@@ -35,16 +36,22 @@ def inject_matrix_ui():
         .stApp { background-color: #0D0D0F !important; } 
         [data-testid="stSidebar"] { background-color: #121214 !important; border-right: 1px solid #232326 !important; }
         header { visibility: hidden !important; } 
-        [data-testid="block-container"] { padding-top: 2rem !important; }
 
-        /* 区块外轮廓配置 */
+        /* 💥 1. 核心布局收缩：居中、定宽、聚拢视线 */
+        [data-testid="block-container"] { 
+            padding-top: 3rem !important; 
+            max-width: 1050px !important;    /* 强制最大宽度，避免太散 */
+            margin: 0 auto !important;       /* 绝对居中 */
+        }
+
+        /* 💥 2. 区块外轮廓：彻底拉开间距，保证独立感 */
         [data-testid="stVerticalBlockBorderWrapper"] {
             background-color: #161618 !important; 
-            border: none !important; 
+            border: none !important;              /* 去除硬线条 */
             border-radius: 12px !important;       
-            padding: 28px 32px 16px 32px !important; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important; 
-            margin-bottom: 28px !important;
+            padding: 32px 36px 16px 36px !important; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important; /* 加深悬浮阴影 */
+            margin-bottom: 48px !important;       /* 💥 大幅拉开区块之间的间距 */
         }
 
         /* 小标题排版 */
@@ -52,80 +59,86 @@ def inject_matrix_ui():
             color: #EBEBEB;
             font-size: 16px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             padding-bottom: 12px;
             border-bottom: 1px solid #2C2C2E;
             letter-spacing: 1px;
         }
 
         /* ============================================================== */
-        /* 💥 核心革新：全局组件底座归一化 (Wrapper Unification)           */
-        /* 强行统一文本、数字、日期、下拉框的外壳，高度死死锁定 48px      */
+        /* 💥 3. 组件高度绝对统一化 (解决“参与人数”高度塌陷)              */
         /* ============================================================== */
         
-        /* 1. 统一最外层底座容器 */
+        /* 统一底层包裹器高度 */
         div[data-baseweb="input"], 
         div[data-baseweb="select"] {
             background-color: #0D0D0F !important;
             border: 1px solid #232326 !important;
             border-radius: 8px !important;
-            height: 48px !important;            /* 绝对统一高度 */
+            height: 48px !important;            
             min-height: 48px !important;
             box-sizing: border-box !important;
-            transition: all 0.2s ease !important;
             display: flex !important;
             align-items: center !important;
+            overflow: hidden !important; /* 防止内部按钮溢出 */
+            margin-bottom: 8px !important;
         }
 
-        /* 2. 彻底剥离组件内部夹层的边框和背景 (消灭双层套匣子) */
-        div[data-baseweb="input"] > div, 
-        div[data-baseweb="select"] > div {
-            border: none !important;
-            background-color: transparent !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
+        /* 清除默认多余嵌套 */
+        div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+            border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important;
         }
 
-        /* 3. 剥离实际 input 标签自带样式，只做纯净的文字载体 */
+        /* 文本、日期输入框本体 */
         div[data-baseweb="input"] input {
             background-color: transparent !important;
             border: none !important;
             color: #EDEDED !important;
             font-size: 14px !important;
-            text-align: center !important;     /* 统一文字居中 */
+            text-align: center !important;     
             height: 100% !important;
             padding: 0 16px !important;
         }
 
-        /* 4. 针对数字控件 (+/-号) 及 日历图标的微调 */
-        div[data-baseweb="input"] button { background-color: transparent !important; color: #8A8A93 !important; }
-        div[data-baseweb="select"] span[data-baseweb="icon"] { color: #8A8A93 !important; margin-right: 12px !important; }
+        /* 💥 靶向修复：数字输入框 (参与人数/报销金额) 高度补正 */
+        [data-testid="stNumberInput"] div[data-baseweb="input"] {
+            padding: 0 !important; /* 取消 padding，让加减按钮贴边 */
+        }
+        [data-testid="stNumberInput"] input {
+            height: 48px !important;
+            line-height: 48px !important;
+            padding: 0 12px !important;
+        }
+        /* 修正数字框旁边的 加减号按钮，确保高度贴合 */
+        [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {
+            background-color: #121214 !important; 
+            color: #8A8A93 !important;
+            height: 48px !important; 
+            width: 36px !important;
+            border: none !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+        }
+        [data-testid="stNumberInputStepUp"]:hover, [data-testid="stNumberInputStepDown"]:hover { background-color: #232326 !important; color: #FFFFFF !important;}
 
-        /* 5. 下拉菜单内部文字强制居中 */
+        /* 下拉框文字居中 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
             font-size: 14px !important; margin: 0 !important; color: #EDEDED !important; font-weight: 500 !important;
             text-align: center !important; width: 100% !important;
         }
+        div[data-baseweb="select"] span[data-baseweb="icon"] { color: #8A8A93 !important; margin-right: 12px !important; }
         
-        /* 6. 统一焦点与悬停状态反馈 */
-        div[data-baseweb="input"]:focus-within, 
-        div[data-baseweb="select"]:focus-within {
-            border-color: #4A4A52 !important;
-            background-color: #121214 !important;
-            box-shadow: 0 0 0 1px #4A4A52 !important; /* 增加高级微光轮廓 */
+        /* 交互微光反馈 */
+        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {
+            border-color: #4A4A52 !important; background-color: #121214 !important; box-shadow: 0 0 0 1px #4A4A52 !important;
         }
         
-        /* 下拉展开面板 */
+        /* 下拉展开菜单 */
         div[data-baseweb="menu"] { background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; margin-top: 4px !important;}
         div[data-baseweb="menu"] div { font-size: 14px !important; color: #A0A0A5 !important; padding: 8px 12px !important; text-align: center !important; }
 
         /* 标签对齐 */
         .stMarkdown label, p, .stWidgetLabel { 
-            font-size: 13px !important; 
-            font-weight: 500 !important; 
-            color: #8A8A93 !important; 
-            margin-bottom: 8px !important; 
-            letter-spacing: 0.5px !important;
+            font-size: 13px !important; font-weight: 500 !important; color: #8A8A93 !important; margin-bottom: 8px !important; letter-spacing: 0.5px !important;
         }
 
         /* 极简通栏按钮 */
@@ -142,12 +155,9 @@ def inject_matrix_ui():
             align-items: center !important;
             width: 100% !important;
             transition: all 0.2s ease !important;
+            margin-top: 12px !important;
         }
-        .stButton>button[kind="primary"] {
-            background-color: #12261E !important; 
-            border-color: #1D3A2F !important;
-            color: #E2F2EB !important;
-        }
+        .stButton>button[kind="primary"] { background-color: #12261E !important; border-color: #1D3A2F !important; color: #E2F2EB !important; }
         .stButton>button:hover { filter: brightness(1.2); color: #FFFFFF !important; }
 
         /* 表格与选项卡 */
@@ -155,7 +165,7 @@ def inject_matrix_ui():
         th { border-bottom: 1px solid #2C2C30 !important; background-color: #161618 !important; font-weight: 600 !important; color:#8A8A93 !important;}
         td { border-bottom: 1px solid #1E1E21 !important; border-right: none !important; color: #D4D4D8 !important; font-size: 14px !important;}
         
-        .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #232326 !important; gap: 32px; padding-bottom: 8px !important; margin-bottom: 32px !important; background-color: transparent !important;}
+        .stTabs [data-baseweb="tab-list"] { border-bottom: 1px solid #232326 !important; gap: 32px; padding-bottom: 8px !important; margin-bottom: 36px !important; background-color: transparent !important;}
         .stTabs [data-baseweb="tab"] { border: none !important; color: #66666E !important; font-size: 16px !important; font-weight: 500 !important; background-color: transparent !important;}
         .stTabs [aria-selected="true"] { color: #EDEDED !important; border-bottom: 2px solid #EDEDED !important; }
         </style>
@@ -254,8 +264,8 @@ tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
     
-    # 💥 区块 A：核心账目区块 
-    with st.container(border=False):
+    # 💥 区块 A：核心账目区块 (恢复 border=True 让 CSS 类生效，边框已由 CSS 置为无)
+    with st.container(border=True):
         st.markdown("<div class='block-title'>核心账目核算维度</div>", unsafe_allow_html=True)
         a_col1, a_col2, a_col3 = st.columns(3) 
         with a_col1: date = st.date_input("发生时间", datetime.date.today())
@@ -268,7 +278,7 @@ with tab1:
         with a2_col3: st.empty() 
 
     # 💥 区块 B：业务执行区块 
-    with st.container(border=False):
+    with st.container(border=True):
         st.markdown("<div class='block-title'>业务执行细节追踪</div>", unsafe_allow_html=True)
         b_col1, b_col2, b_col3 = st.columns(3) 
         with b_col1: location = st.text_input("目的地 / 行程")
@@ -281,7 +291,7 @@ with tab1:
         with b2_col3: st.empty()
 
     # 💥 区块 C：审计与控制区块 
-    with st.container(border=False):
+    with st.container(border=True):
         st.markdown("<div class='block-title'>审计控制与提交流</div>", unsafe_allow_html=True)
         c_col1, c_col2, c_col3 = st.columns(3)
         with c_col1: status = st.selectbox("当前申报状态", list(STATUS_COLORS.keys()))
@@ -305,7 +315,7 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"审计日志链已生成。数据节点防伪标识: {serial}")
         
-    # 动态 CSS 引擎保持不变，精准定位变色
+    # 动态 CSS 引擎保持精准定位变色
     st.markdown(f"""
         <style>
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
@@ -322,7 +332,7 @@ with tab2:
     st.markdown("<p style='color:#8A8A93; font-size:14px; margin-bottom:12px; font-weight:500;'>全局数据流 (只读节点)</p>", unsafe_allow_html=True)
     display_df = st.session_state.df.copy()
     if not display_df.empty: display_df['金额'] = pd.to_numeric(display_df['金额']).map("{:.2f}".format)
-    st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 16px; margin-bottom:32px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>", unsafe_allow_html=True)
+    st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 16px; margin-bottom:48px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
     st.dataframe(apply_color_style(display_df), use_container_width=True, height=250)
     st.markdown("</div>", unsafe_allow_html=True)
     
@@ -339,7 +349,7 @@ with tab2:
                 except: pass
         editable_df = st.session_state.df.loc[editable_indices].copy()
 
-    st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 16px; margin-bottom:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>", unsafe_allow_html=True)
+    st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 16px; margin-bottom:16px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
     if editable_df.empty and st.session_state["role"] != "admin":
         st.info("当前时间戳内暂无活跃的可编辑数据单元。")
     else:
@@ -365,7 +375,7 @@ with tab3:
         temp_df['金额'] = pd.to_numeric(temp_df['金额'], errors='coerce').fillna(0.0)
         
         st.markdown(f"""
-        <div style='background: #161618; border: none; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>
+        <div style='background: #161618; border: none; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 48px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);'>
             <span style='color: #8A8A93; font-size: 14px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;'>年度全域资金净流出量</span><br><br>
             <span style='color: #EDEDED; font-size: 48px; font-weight: 600; letter-spacing: -1px;'>{temp_df['金额'].sum():.2f} <span style='font-size: 18px; color: #66666E;'>CNY</span></span>
         </div>
@@ -373,7 +383,7 @@ with tab3:
         
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>", unsafe_allow_html=True)
+            st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
             st.markdown("<p style='color:#8A8A93; font-size:13px; font-weight:500;'>核心资产流向矩阵建模</p>", unsafe_allow_html=True)
             fig = px.pie(temp_df.groupby('总类别')['金额'].sum().reset_index(), values='金额', names='总类别', hole=0.8, color='总类别', color_discrete_map=PLOTLY_COLORS)
             fig.update_traces(textinfo='none', marker=dict(line=dict(color='#161618', width=4)))
@@ -382,7 +392,7 @@ with tab3:
             st.markdown("</div>", unsafe_allow_html=True)
             
         with c2:
-            st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 24px; height: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.4);'>", unsafe_allow_html=True)
+            st.markdown("<div style='background-color:#161618; border: none; border-radius:12px; padding: 24px; height: 100%; box-shadow: 0 8px 30px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
             st.markdown("<p style='color:#8A8A93; font-size:13px; font-weight:500;'>月度时间轴消耗峰值监测</p>", unsafe_allow_html=True)
             fig_bar = px.bar(temp_df.groupby('月份')['金额'].sum().reset_index(), x='月份', y='金额', color_discrete_sequence=['#4A4A52'])
             fig_bar.update_layout(xaxis_type='category', margin=dict(t=10, b=10, l=10, r=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#EDEDED')
