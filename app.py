@@ -27,7 +27,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# 🧱 [绝对封存] 登录页专属 UI 引擎 (保持不变)
+# 🧱 [绝对封存] 登录页专属 UI 引擎 
 # ==========================================
 def render_login_header(icon, title, desc):
     return f"""
@@ -82,7 +82,7 @@ def inject_login_ui():
 
 
 # ==========================================
-# 💎 [全新主页] 纯平一致框 + Submit绝对居中
+# 💎 [绝对封存] 主页专属 UI 引擎 (保持不变)
 # ==========================================
 def render_main_header(title, desc):
     return f"""
@@ -104,109 +104,73 @@ def inject_main_ui():
         [data-testid="block-container"] {{ padding-top: 2rem !important; max-width: 1050px !important; margin: 0 auto !important; }}
 
         [data-testid="stVerticalBlockBorderWrapper"] {{
-            background-color: {CARD_BG} !important; 
-            border: 1px solid {BORDER_COLOR} !important;  
-            border-radius: 12px !important;       
-            padding: 24px 32px 24px 32px !important; 
-            margin-bottom: 24px !important;
-            backdrop-filter: blur(10px);
+            background-color: {CARD_BG} !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 12px !important;       
+            padding: 24px 32px 24px 32px !important; margin-bottom: 24px !important; backdrop-filter: blur(10px);
         }}
 
-        /* 💥 统一的完美单层框管理，确保所有组件高度一致、无多余红边重叠 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
-            background-color: rgba(0,0,0,0.3) !important; 
-            border: 1px solid {BORDER_COLOR} !important; 
-            border-radius: 6px !important; 
-            height: 36px !important;            
-            min-height: 36px !important;
-            box-sizing: border-box !important;
-            display: flex !important; align-items: center !important; overflow: hidden !important; 
-            margin-bottom: 0px !important; 
+            background-color: rgba(0,0,0,0.3) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 6px !important; 
+            height: 36px !important; min-height: 36px !important; box-sizing: border-box !important;
+            display: flex !important; align-items: center !important; overflow: hidden !important; margin-bottom: 0px !important; 
         }}
-        
-        /* 扒光内部潜藏套娃层 */
-        div[data-baseweb="input"] > div, 
-        div[data-baseweb="select"] > div {{ 
-            border: none !important; 
-            background-color: transparent !important; 
-            box-shadow: none !important; 
-            border-radius: 0 !important; 
-            padding: 0 !important;
-        }}
-        
+        div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; }}
         div[data-baseweb="input"] input {{ color: #FFFFFF !important; font-size: 13px !important; text-align: center !important; padding: 0 12px !important; outline: none !important; }}
         [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
         
-        /* 下拉框文字靠左对齐 */
+        [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ display: none !important; }}
+        [data-testid="stNumberInput"] input {{ height: 36px !important; line-height: 36px !important; padding: 0 !important; font-size: 13px !important; text-align: center !important; width: 100% !important; }}
+        
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 13px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: left !important; width: 100% !important; padding-left: 10px !important; }}
         div[data-baseweb="select"] span[data-baseweb="icon"] {{ color: rgba(255,255,255,0.4) !important; margin-right: 8px !important; }}
-        
         div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {{ border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important; }}
-        
-        /* 标签字号紧贴输入框 */
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 6px !important; text-align: left !important; }}
 
-        /* ============================================================== */
-        /* 💥 核心修复：英文 Submit 按钮的自然绝对居中，去除之前的下压补偿 */
-        /* ============================================================== */
-        div[data-testid="stButton"] {{ 
-            display: flex !important; 
-            justify-content: flex-start !important; /* 保持左对齐镇守在下方 */
-            margin-top: 16px !important; 
-        }}
+        div[data-testid="stButton"] {{ display: flex !important; justify-content: flex-start !important; margin-top: 16px !important; }}
         .stButton > button {{
-            background-color: rgba(255,255,255,0.03) !important; 
-            color: rgba(255,255,255,0.8) !important;            
-            border: 1px solid {BORDER_COLOR} !important; 
-            border-radius: 50px !important; /* 胶囊形 */
-            height: 36px !important; 
-            width: 140px !important; 
-            margin: 0 !important; 
-            padding: 0 !important;
-            display: flex !important; 
-            justify-content: center !important; 
-            align-items: center !important; 
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
+            background-color: rgba(255,255,255,0.03) !important; color: rgba(255,255,255,0.8) !important; border: 1px solid {BORDER_COLOR} !important; 
+            border-radius: 50px !important; height: 36px !important; width: 140px !important; margin: 0 !important; padding: 0 !important;
+            display: flex !important; justify-content: center !important; align-items: center !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
         }}
-        
-        /* 💥 移除 translateY，恢复自然居中以适配英文 'Submit' */
-        .stButton > button span,
-        .stButton > button div,
-        .stButton > button p {{ 
-            display: flex !important; 
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important; 
-            font-weight: 600 !important; 
-            font-size: 14px !important;
-            line-height: normal !important; 
-            letter-spacing: 2px !important; 
-            transform: none !important; /* 💥 清空位移，自然居中 */
-            margin: 0 !important;
-            padding: 0 !important;
-        }}
-        
+        .stButton > button span, .stButton > button div, .stButton > button p {{ display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; font-weight: 600 !important; font-size: 14px !important; line-height: normal !important; letter-spacing: 2px !important; transform: none !important; margin: 0 !important; padding: 0 !important; }}
         .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
+        .stButton > button[kind="primary"]:hover {{ background-color: {BRAND_COLOR} !important; border-color: {BRAND_COLOR} !important; box-shadow: 0 0 25px rgba(167, 240, 105, 0.3) !important; }}
+        .stButton > button[kind="primary"]:hover * {{ color: #000000 !important; }}
         
-        /* 悬停时：绿底、黑字、光晕 */
-        .stButton > button[kind="primary"]:hover {{ 
-            background-color: {BRAND_COLOR} !important; 
-            border-color: {BRAND_COLOR} !important;
-            box-shadow: 0 0 25px rgba(167, 240, 105, 0.3) !important; 
-        }}
-        .stButton > button[kind="primary"]:hover * {{
-            color: #000000 !important;
-        }}
-        
-        /* 去除 Tabs 横线 */
         .stTabs [data-baseweb="tab-list"] {{ border-bottom: none !important; gap: 32px; padding-bottom: 8px !important; margin-bottom: 24px !important; background-color: transparent !important;}}
         .stTabs [data-baseweb="tab"] {{ border: none !important; color: rgba(255,255,255,0.4) !important; font-size: 15px !important; font-weight: 500 !important; background-color: transparent !important;}}
         .stTabs [aria-selected="true"] {{ color: {BRAND_COLOR} !important; border-bottom: 2px solid {BRAND_COLOR} !important; }}
         
-        /* 表格精简 */
+        /* ============================================================== */
+        /* 💥 5. 审计终端专属：表格文字绝对居中                           */
+        /* ============================================================== */
         [data-testid="stDataFrame"] {{ border: none !important; background-color: transparent !important; }}
-        th {{ border-bottom: 1px solid {BORDER_COLOR} !important; background-color: transparent !important; font-weight: 500 !important; color:rgba(255,255,255,0.4) !important; font-size: 12px !important;}}
-        td {{ border-bottom: 1px solid rgba(255,255,255,0.04) !important; color: #EBEBEB !important; font-size: 13px !important;}}
+        
+        /* 表头(列名)居中 */
+        th {{ 
+            border-bottom: 1px solid {BORDER_COLOR} !important; 
+            background-color: transparent !important; 
+            font-weight: 500 !important; 
+            color: rgba(255,255,255,0.4) !important; 
+            font-size: 12px !important;
+            text-align: center !important; /* 强制表头居中 */
+        }}
+        th .st-emotion-cache-1zqw221 {{ /* 针对 Streamlit 内层包装 div 进行居中修正 */
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }}
+        
+        /* 数据单元格居中 */
+        td {{ 
+            border-bottom: 1px solid rgba(255,255,255,0.04) !important; 
+            color: #EBEBEB !important; 
+            font-size: 13px !important;
+            text-align: center !important; /* 强制内容居中 */
+        }}
+        td div {{
+            text-align: center !important;
+            justify-content: center !important;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -253,7 +217,7 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录鉴权 (第一页：绝对封存)
+# 🔒 登录鉴权
 # ==========================================
 if not st.session_state.get("logged_in", False):
     inject_login_ui() 
@@ -305,7 +269,6 @@ with tab1:
         with a_col1: date = st.date_input("发生时间", datetime.date.today())
         with a_col2: main_cat = st.selectbox("总类别", list(CAT_COLORS.keys()))
         with a_col3: sub_cat = st.text_input("子类别")
-        # 💥 核心替换：使用标准的 text_input 确保100%纯平无缝样式
         with a_col4: amount_str = st.text_input("金额 (元)", value="0.00")
         with a_col5: remarks = st.text_input("补充备注")
 
@@ -314,7 +277,6 @@ with tab1:
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
         with b_col1: location = st.text_input("起始终点") 
         with b_col2: people = st.text_input("涉及人员")
-        # 💥 核心替换：使用标准的 text_input
         with b_col3: num_people_str = st.text_input("参与人数", value="1") 
         with b_col4: summary = st.text_input("事由摘要")
 
@@ -326,18 +288,11 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 按钮英文首字母大写：Submit 完美居中
         if st.button("Submit", type="primary"):
-            # 安全将文本转换为数值后台保存
-            try:
-                parsed_amount = float(amount_str) if amount_str else 0.0
-            except ValueError:
-                parsed_amount = 0.0
-                
-            try:
-                parsed_num = int(num_people_str) if num_people_str else 1
-            except ValueError:
-                parsed_num = 1
+            try: parsed_amount = float(amount_str) if amount_str else 0.0
+            except ValueError: parsed_amount = 0.0
+            try: parsed_num = int(num_people_str) if num_people_str else 1
+            except ValueError: parsed_num = 1
 
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -354,7 +309,6 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"已生成标识: {serial}")
 
-    # 精准动态色彩引擎
     st.markdown(f"""
         <style>
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
@@ -373,6 +327,8 @@ with tab2:
         st.markdown(render_main_header("只读数据流", "不可篡改的历史节点监控"), unsafe_allow_html=True)
         display_df = st.session_state.df.copy()
         if not display_df.empty: display_df['金额'] = pd.to_numeric(display_df['金额']).map("{:.2f}".format)
+        
+        # 表格渲染区域
         st.dataframe(apply_color_style(display_df), use_container_width=True, height=250)
     
     with st.container(border=True):
@@ -394,7 +350,6 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            # 同样应用英文居中提交按钮
             if st.button("Sync", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
