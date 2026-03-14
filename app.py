@@ -7,14 +7,13 @@ import plotly.express as px
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🎨 赛博极简色盘与全局变量 (已修复并回归低明度动态色系)
+# 🎨 赛博极简色盘与全局变量
 # ==========================================
 BRAND_COLOR = "#a7f069" # 核心荧光绿
 BG_DARK = "#050505"     # 极深背景
 CARD_BG = "rgba(255, 255, 255, 0.02)" # 卡片底层透白
 BORDER_COLOR = "rgba(255, 255, 255, 0.08)" # 极细半透明白边
 
-# 💥 完美修复：加回了低纯度色系和 border 键值，恢复色彩联动且解决 KeyError
 CAT_COLORS = {
     "接待": {"bg": "#101D2B", "text": "#E6F0FA", "border": "#1A2E44"},       
     "餐旅": {"bg": "#12261E", "text": "#E2F2EB", "border": "#1D3A2F"},       
@@ -36,7 +35,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 
+# ⬛ 霓虹悬浮 CSS 引擎 (已包含所有对齐与边框修复)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -52,7 +51,7 @@ def inject_neon_ui():
         header {{ visibility: hidden !important; }} 
         [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* 1. 25px圆角卡片与极细边框全面回归 */
+        /* 1. 25px圆角卡片与极细边框 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
             border: 1px solid {BORDER_COLOR} !important;  
@@ -88,16 +87,15 @@ def inject_neon_ui():
         .desc-text {{ color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 400; }}
         
         [data-testid="stVerticalBlockBorderWrapper"]:hover .icon-container {{
-            transform: scale(1.1);
-            border-color: {BRAND_COLOR};
-            color: {BRAND_COLOR};
-            box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
+            transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* 3. 组件底座极细边框归一化 */
+        /* ============================================================== */
+        /* 3. 组件底座修复：确保存文本框/密码框等边框常驻                 */
+        /* ============================================================== */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.2) !important;
-            border: 1px solid {BORDER_COLOR} !important; 
+            border: 1px solid {BORDER_COLOR} !important; /* 所有输入框默认细白边 */
             border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
@@ -105,11 +103,12 @@ def inject_neon_ui():
             transition: all 0.3s ease !important;
             display: flex !important; align-items: center !important; overflow: hidden !important; margin-bottom: 8px !important;
         }}
+        
         div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
         div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; }}
         
-        /* 单行框优化 */
-        [data-testid="stTextInput"] div[data-baseweb="input"], [data-testid="stDateInput"] div[data-baseweb="input"] {{
+        /* 精准打击：只清除日期组件的深层套框，绝不误伤普通文本框 */
+        [data-testid="stDateInput"] div[data-baseweb="input"] {{
             background-color: transparent !important; border: none !important; box-shadow: none !important;
         }}
 
@@ -126,9 +125,6 @@ def inject_neon_ui():
         [data-testid="stNumberInput"] input {{ height: 48px !important; line-height: 48px !important; padding: 0 12px !important; }}
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 48px !important; width: 36px !important; border: none !important; }}
         
-        /* 日期选择器靶向清除 */
-        .stDateInput div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; }}
-
         /* 下拉框文字居中 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 14px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: center !important; width: 100% !important; }}
         div[data-baseweb="select"] span[data-baseweb="icon"] {{ color: rgba(255,255,255,0.4) !important; margin-right: 12px !important; }}
@@ -144,7 +140,7 @@ def inject_neon_ui():
 
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
-        /* 4. 按钮引擎 */
+        /* 4. 按钮引擎 (保持全英文横向居中) */
         .stButton>button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
@@ -260,6 +256,7 @@ st.markdown("<h2 style='color:#FFF; font-weight:600; margin-bottom: 32px; font-s
 tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
+    # 区块 A：1排4列 矩阵 (带边框)
     with st.container(border=True):
         st.markdown(render_header("📊", "核心账目核算", "请在此准确定义费用的属性及流出金额"), unsafe_allow_html=True)
         a_col1, a_col2, a_col3, a_col4 = st.columns(4) 
@@ -274,6 +271,7 @@ with tab1:
         with a2_col3: st.empty() 
         with a2_col4: st.empty() 
 
+    # 区块 B：1排4列 矩阵 (带边框)
     with st.container(border=True):
         st.markdown(render_header("📍", "业务执行追踪", "关联业务实际发生地点与参与详情"), unsafe_allow_html=True)
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
@@ -282,6 +280,7 @@ with tab1:
         with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1)
         with b_col4: summary = st.text_input("事由摘要", placeholder="精确描述业务动向") 
 
+    # 区块 C：1排4列 矩阵 (带边框)
     with st.container(border=True):
         st.markdown(render_header("⚡", "审计与提交流", "确认申报状态并进行底层数据封装"), unsafe_allow_html=True)
         c_col1, c_col2, c_col3, c_col4 = st.columns(4)
@@ -306,7 +305,7 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"审计日志链已生成。标识: {serial}")
 
-    # 💥 修正后的色彩联动引擎
+    # 动态 CSS 色彩联动引擎
     st.markdown(f"""
         <style>
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
@@ -315,7 +314,7 @@ with tab1:
         }}
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(3) [data-testid="column"]:nth-of-type(1) div[data-baseweb="select"] {{
             background-color: {STATUS_COLORS[status]} !important;
-            border-color: {STATUS_COLORS[status].replace("0.8", "0.5")} !important; /* 状态边框动态计算 */
+            border-color: {STATUS_COLORS[status].replace("0.8", "0.5")} !important;
         }}
         </style>
     """, unsafe_allow_html=True)
