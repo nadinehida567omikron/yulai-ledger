@@ -4,6 +4,7 @@ import datetime
 import requests
 import plotly.express as px
 
+# 隐藏 Streamlit 默认的顶部导航，打造纯净客户端体验
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
@@ -35,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (像素级对齐修复)
+# ⬛ 霓虹悬浮 CSS 引擎 (完美居中与文字下压版)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -90,7 +91,7 @@ def inject_neon_ui():
             transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* 3. 组件外框修复：确保细边框 100% 显示 */
+        /* 3. 组件外框修复 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.3) !important; 
             border: 1px solid {BORDER_COLOR} !important; 
@@ -136,46 +137,60 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 终极按钮引擎：文字强制物理下移，解决中文字体视觉偏上   */
+        /* 💥 4. 终极按钮引擎：绝对居中与文字下压微调                       */
         /* ============================================================== */
         
-        [data-testid="stVerticalBlock"] [data-testid="stButton"] {{
+        /* 💥 核心修复1：接管 Streamlit 隐藏的按钮包裹器，强行居中整个按钮组件 */
+        div[data-testid="stButton"] {{
             display: flex !important;
             justify-content: center !important;
+            align-items: center !important;
             width: 100% !important;
+            margin-top: 12px !important;
         }}
 
-        .stButton>button {{
+        /* 按钮本体尺寸与居中 */
+        .stButton > button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important;    
             border-radius: 12px !important;                 
             height: 36px !important; 
-            font-weight: 500 !important; 
-            font-size: 14px !important;
-            display: flex !important; justify-content: center !important; align-items: center !important; 
             width: 180px !important; 
-            margin: 16px auto 0 auto !important; 
-            transition: all 0.4s ease !important; 
+            margin: 0 !important;   /* 外边距清零，完全交由父级 wrapper 居中 */
+            padding: 0 !important;  
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
+            transition: all 0.3s ease !important; 
         }}
         
-        /* 💥 文字物理下移 2px 修正视觉重心 */
-        .stButton>button span {{ 
-            display: block !important; 
-            text-align: center !important; 
+        /* 💥 核心修复2：抹杀行高，强制向下偏移 1.5 像素，完美对齐视觉重心 */
+        .stButton > button span, 
+        .stButton > button div, 
+        .stButton > button p {{ 
+            display: flex !important; 
+            align-items: center !important;
+            justify-content: center !important;
             width: 100% !important; 
-            letter-spacing: 4px !important; 
-            transform: translateY(2px) !important; /* 💥 核心：强制字体像素向下移动 */
+            font-weight: 500 !important; 
+            font-size: 14px !important;
+            line-height: 1 !important; /* 抹去中文字体自带的上下留白 */
+            letter-spacing: 6px !important; /* 稍微拉开字距更显高级 */
+            transform: translateY(1.5px) !important; /* 💥 宁可偏下一点点：强行下压 1.5 像素 */
+            margin: 0 !important;
+            padding: 0 !important;
         }} 
         
-        .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
+        .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
         
-        .stButton>button[kind="primary"]:hover {{ 
+        /* Hover：保持原有的绿底、光晕，同时强制所有内部文字变黑 */
+        .stButton > button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
             border-color: {BRAND_COLOR} !important;
             box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; 
         }}
-        .stButton>button[kind="primary"]:hover * {{
+        .stButton > button[kind="primary"]:hover * {{
             color: #000000 !important;
         }}
 
@@ -245,7 +260,7 @@ def login():
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 文字改为中文“进 入”，在上面的 CSS 中已被强制下移 2px
+            # 💥 文字改为中文“进 入”，并且悬停时变黑、外框居中、高度36px
             if st.button("进 入", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -311,6 +326,7 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
+        # 主界面的提交按钮也同步更新样式
         if st.button("提交封装", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
