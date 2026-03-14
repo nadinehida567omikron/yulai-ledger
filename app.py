@@ -4,7 +4,6 @@ import datetime
 import requests
 import plotly.express as px
 
-# 隐藏 Streamlit 默认的顶部导航，打造纯净客户端体验
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
@@ -13,7 +12,7 @@ st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sid
 BRAND_COLOR = "#a7f069" # 核心荧光绿
 BG_DARK = "#050505"     # 极深背景
 CARD_BG = "rgba(255, 255, 255, 0.02)" # 卡片底层透白
-BORDER_COLOR = "rgba(255, 255, 255, 0.08)" # 极细半透明白边
+BORDER_COLOR = "rgba(255, 255, 255, 0.15)" # 💥 提高了边框透明度，确保清晰可见
 
 CAT_COLORS = {
     "接待": {"bg": "#101D2B", "text": "#E6F0FA", "border": "#1A2E44"},       
@@ -36,7 +35,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (已包含所有对齐与边框修复)
+# ⬛ 霓虹悬浮 CSS 引擎 (像素级修复对齐与交互)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -52,7 +51,7 @@ def inject_neon_ui():
         header {{ visibility: hidden !important; }} 
         [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* 1. 25px圆角卡片与极细边框全面回归 */
+        /* 1. 25px大圆角卡片 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
             border: 1px solid {BORDER_COLOR} !important;  
@@ -91,10 +90,12 @@ def inject_neon_ui():
             transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* 3. 组件底座归一化 */
+        /* ============================================================== */
+        /* 💥 3. 组件边框绝对加固 (解决登录框边框消失)                      */
+        /* ============================================================== */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
-            background-color: rgba(0,0,0,0.2) !important;
-            border: 1px solid {BORDER_COLOR} !important; 
+            background-color: rgba(0,0,0,0.3) !important; 
+            border: 1px solid {BORDER_COLOR} !important; /* 💥 边框强力锁定 */
             border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
@@ -104,16 +105,16 @@ def inject_neon_ui():
         }}
         
         div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
-        div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; }}
+        div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; outline: none !important; }}
         
-        /* 单行框优化 */
-        [data-testid="stTextInput"] div[data-baseweb="input"], [data-testid="stDateInput"] div[data-baseweb="input"] {{
+        /* 日期选择器靶向排雷 */
+        [data-testid="stDateInput"] div[data-baseweb="input"] {{
             background-color: transparent !important; border: none !important; box-shadow: none !important;
         }}
 
-        /* 文本域修复 */
+        /* 多行文本域修复 */
         .stTextArea textarea {{ 
-            background-color: rgba(0,0,0,0.2) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 12px !important;
+            background-color: rgba(0,0,0,0.3) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 12px !important;
             color: #FFFFFF !important; font-size: 14px !important; height: 140px !important; line-height: 1.6 !important; padding: 16px !important; 
             transition: all 0.3s ease !important;
         }}
@@ -140,11 +141,11 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 按钮引擎 (精准重构：居中定位与 Hover 字体对比度)          */
+        /* 💥 4. 按钮引擎：收缩居中 & Hover黑字反差                       */
         /* ============================================================== */
         
-        /* 💥 修复：强制将所有按钮所在的 Streamlit 容器也进行居中对齐 */
-        [data-testid="stVerticalBlock"] [data-testid="stButton"] {{
+        /* 强制按钮容器整体居中 */
+        [data-testid="stButton"] {{
             display: flex !important;
             justify-content: center !important;
             width: 100% !important;
@@ -156,23 +157,29 @@ def inject_neon_ui():
             border: 1px solid {BORDER_COLOR} !important;    
             border-radius: 12px !important;                 
             height: 54px !important; 
-            font-weight: 500 !important; 
+            font-weight: 600 !important; 
             font-size: 15px !important;
-            display: flex !important; justify-content: center !important; align-items: center !important; 
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
             
-            /* 💥 修复：按钮从通栏(100%)改为定宽并居中 */
-            width: 260px !important; /* 精准收缩宽度 */
-            margin: 12px auto 0 auto !important; /* 💥 关键：利用 auto 强制水平居中 */
-            
+            /* 💥 按钮收缩宽度，利用 margin auto 居中 */
+            width: 280px !important; 
+            margin: 12px auto 0 auto !important; 
             transition: all 0.4s ease !important; 
         }}
+        .stButton>button span {{ display: block !important; text-align: center !important; width: 100% !important; }} 
         
-        /* 💥 按钮变绿时，字体渐变成黑色，以形成色彩的反差 (完全遵循：变绿、反差) */
         .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
+        
+        /* 💥 悬停交互：背景变绿，文字强制变黑 */
         .stButton>button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
-            color: #000000 !important; /* 💥 字体渐变成黑色 */
-            box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; 
+            border-color: {BRAND_COLOR} !important;
+            box-shadow: 0 0 25px rgba(167, 240, 105, 0.4) !important; 
+        }}
+        .stButton>button[kind="primary"]:hover * {{
+            color: #000000 !important; /* 强制所有内部文字变黑 */
         }}
 
         /* 表格与选项卡 */
@@ -230,7 +237,7 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录鉴权 (第一页：请重点核对微调效果)
+# 🔒 登录系统 (第一页专属验证区域)
 # ==========================================
 def login():
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
@@ -241,7 +248,7 @@ def login():
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 登录按钮：全英文，定宽并绝对水平居中
+            # 💥 完全居中定宽，全英文，Hover时字体变黑
             if st.button("SYSTEM AUTHENTICATION", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -256,7 +263,7 @@ if not st.session_state.get("logged_in", False):
     st.stop()
 
 # ==========================================
-# 后续主界面代码 (当前请先专注于第一页验收)
+# 后续主界面代码
 # ==========================================
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
@@ -307,7 +314,6 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 英文提交按钮也同样变为定宽并居中，字体变黑
         if st.button("COMMIT TRANSACTION", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -318,7 +324,7 @@ with tab1:
                 '月份': month_str, '序号': serial, '时间': date.strftime("%Y.%m.%d"),
                 '总类别': main_cat, '子类别': sub_cat, '摘要': summary, '人员': people, '人数': num_people, '出发地/目的地': location,
                 '金额': amount, '申请人': applicant, '申报状态': status, '备注': remarks,
-                '录入人': st.session_state["username"], '录入time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                '录入人': st.session_state["username"], '录入时间': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
             save_data_to_cloud(st.session_state.df)
@@ -352,9 +358,9 @@ with tab2:
             now = datetime.datetime.now()
             editable_indices = []
             for idx, row in st.session_state.df.iterrows():
-                if row['录入人'] == st.session_state["username"] and row['录入time'] != "":
+                if row['录入人'] == st.session_state["username"] and row['录入时间'] != "":
                     try:
-                        if (now - datetime.datetime.strptime(row['录入time'], "%Y-%m-%d %H:%M:%S")).total_seconds() <= 12 * 3600: editable_indices.append(idx)
+                        if (now - datetime.datetime.strptime(row['录入时间'], "%Y-%m-%d %H:%M:%S")).total_seconds() <= 12 * 3600: editable_indices.append(idx)
                     except: pass
             editable_df = st.session_state.df.loc[editable_indices].copy()
 
@@ -363,7 +369,6 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            # 💥 英文更新按钮同样变为定宽并居中，字体变黑
             if st.button("SYNCHRONIZE OVERRIDES", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
