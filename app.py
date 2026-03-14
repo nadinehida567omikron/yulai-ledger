@@ -27,7 +27,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# 🧱 [绝对封存] 登录页专属 UI 引擎 
+# 🧱 [绝对封存] 登录页专属 UI 引擎 (保持不变)
 # ==========================================
 def render_login_header(icon, title, desc):
     return f"""
@@ -82,7 +82,7 @@ def inject_login_ui():
 
 
 # ==========================================
-# 💎 [全新主页] 清除重叠框 + 文字绝对居中
+# 💎 [全新主页] 纯平一致框 + Submit绝对居中
 # ==========================================
 def render_main_header(title, desc):
     return f"""
@@ -112,7 +112,7 @@ def inject_main_ui():
             backdrop-filter: blur(10px);
         }}
 
-        /* 💥 核心修复1：所有输入框统一单层管理，防止深层div产生红色幽灵边框重叠 */
+        /* 💥 统一的完美单层框管理，确保所有组件高度一致、无多余红边重叠 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.3) !important; 
             border: 1px solid {BORDER_COLOR} !important; 
@@ -124,35 +124,18 @@ def inject_main_ui():
             margin-bottom: 0px !important; 
         }}
         
-        /* 强制扒光内部嵌套的所有边框和背景 */
+        /* 扒光内部潜藏套娃层 */
         div[data-baseweb="input"] > div, 
-        div[data-baseweb="select"] > div,
-        [data-testid="stNumberInput"] > div > div {{ 
+        div[data-baseweb="select"] > div {{ 
             border: none !important; 
             background-color: transparent !important; 
             box-shadow: none !important; 
             border-radius: 0 !important; 
-            padding: 0 !important; /* 清除导致重叠的内边距 */
+            padding: 0 !important;
         }}
         
         div[data-baseweb="input"] input {{ color: #FFFFFF !important; font-size: 13px !important; text-align: center !important; padding: 0 12px !important; outline: none !important; }}
-        
         [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
-        
-        /* 💥 彻底斩杀数字输入框的加减号 (+/-) */
-        [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ 
-            display: none !important; 
-        }}
-        
-        /* 数字输入框的内联文字绝对居中 */
-        [data-testid="stNumberInput"] input {{ 
-            height: 36px !important; 
-            line-height: 36px !important; 
-            padding: 0 !important; 
-            font-size: 13px !important; 
-            text-align: center !important; 
-            width: 100% !important;
-        }}
         
         /* 下拉框文字靠左对齐 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 13px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: left !important; width: 100% !important; padding-left: 10px !important; }}
@@ -164,11 +147,11 @@ def inject_main_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 6px !important; text-align: left !important; }}
 
         /* ============================================================== */
-        /* 💥 核心修复2：主页按钮物理下压 1.5px，解决中文偏上问题        */
+        /* 💥 核心修复：英文 Submit 按钮的自然绝对居中，去除之前的下压补偿 */
         /* ============================================================== */
         div[data-testid="stButton"] {{ 
             display: flex !important; 
-            justify-content: flex-start !important; 
+            justify-content: flex-start !important; /* 保持左对齐镇守在下方 */
             margin-top: 16px !important; 
         }}
         .stButton > button {{
@@ -186,7 +169,7 @@ def inject_main_ui():
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
         }}
         
-        /* 💥 针对中文字体强制下压 */
+        /* 💥 移除 translateY，恢复自然居中以适配英文 'Submit' */
         .stButton > button span,
         .stButton > button div,
         .stButton > button p {{ 
@@ -196,15 +179,16 @@ def inject_main_ui():
             width: 100% !important; 
             font-weight: 600 !important; 
             font-size: 14px !important;
-            line-height: 1 !important; 
-            letter-spacing: 4px !important; 
-            transform: translateY(1.5px) !important; /* 💥 解决“提 交”偏上 */
+            line-height: normal !important; 
+            letter-spacing: 2px !important; 
+            transform: none !important; /* 💥 清空位移，自然居中 */
             margin: 0 !important;
             padding: 0 !important;
         }}
         
         .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
         
+        /* 悬停时：绿底、黑字、光晕 */
         .stButton > button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
             border-color: {BRAND_COLOR} !important;
@@ -269,7 +253,7 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录鉴权 (第一页)
+# 🔒 登录鉴权 (第一页：绝对封存)
 # ==========================================
 if not st.session_state.get("logged_in", False):
     inject_login_ui() 
@@ -293,7 +277,7 @@ if not st.session_state.get("logged_in", False):
     st.stop()
 
 # ==========================================
-# 以下为登录后的主界面逻辑 
+# 以下为登录后的主界面逻辑
 # ==========================================
 inject_main_ui() 
 
@@ -321,7 +305,8 @@ with tab1:
         with a_col1: date = st.date_input("发生时间", datetime.date.today())
         with a_col2: main_cat = st.selectbox("总类别", list(CAT_COLORS.keys()))
         with a_col3: sub_cat = st.text_input("子类别")
-        with a_col4: amount = st.number_input("金额 (元)", min_value=0.0, step=0.01)
+        # 💥 核心替换：使用标准的 text_input 确保100%纯平无缝样式
+        with a_col4: amount_str = st.text_input("金额 (元)", value="0.00")
         with a_col5: remarks = st.text_input("补充备注")
 
     with st.container(border=True):
@@ -329,7 +314,8 @@ with tab1:
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
         with b_col1: location = st.text_input("起始终点") 
         with b_col2: people = st.text_input("涉及人员")
-        with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1) 
+        # 💥 核心替换：使用标准的 text_input
+        with b_col3: num_people_str = st.text_input("参与人数", value="1") 
         with b_col4: summary = st.text_input("事由摘要")
 
     with st.container(border=True):
@@ -340,8 +326,19 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 按钮悬底靠左，文字“提 交”
-        if st.button("提 交", type="primary"):
+        # 💥 按钮英文首字母大写：Submit 完美居中
+        if st.button("Submit", type="primary"):
+            # 安全将文本转换为数值后台保存
+            try:
+                parsed_amount = float(amount_str) if amount_str else 0.0
+            except ValueError:
+                parsed_amount = 0.0
+                
+            try:
+                parsed_num = int(num_people_str) if num_people_str else 1
+            except ValueError:
+                parsed_num = 1
+
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
             current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
@@ -349,8 +346,8 @@ with tab1:
             
             new_row = {
                 '月份': month_str, '序号': serial, '时间': date.strftime("%Y.%m.%d"),
-                '总类别': main_cat, '子类别': sub_cat, '摘要': summary, '人员': people, '人数': num_people, '出发地/目的地': location,
-                '金额': amount, '申请人': applicant, '申报状态': status, '备注': remarks,
+                '总类别': main_cat, '子类别': sub_cat, '摘要': summary, '人员': people, '人数': parsed_num, '出发地/目的地': location,
+                '金额': parsed_amount, '申请人': applicant, '申报状态': status, '备注': remarks,
                 '录入人': st.session_state["username"], '录入时间': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
@@ -397,7 +394,8 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            if st.button("同步覆写", type="primary"):
+            # 同样应用英文居中提交按钮
+            if st.button("Sync", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
                     main_df = st.session_state.df[~st.session_state.df['序号'].isin(edited_subset['序号'])].copy()
@@ -407,7 +405,7 @@ with tab2:
 
         if not st.session_state.df.empty and st.session_state["role"] == "admin":
             csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
-            st.download_button("导出数据", data=csv, file_name="2026_财务数据.csv", mime="text/csv")
+            st.download_button("Export", data=csv, file_name="2026_财务数据.csv", mime="text/csv")
 
 with tab3:
     if not st.session_state.df.empty:
