@@ -36,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (Grid绝对居中 + 间距减半版)
+# ⬛ 霓虹悬浮 CSS 引擎 (间距极致压缩版)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -100,7 +100,8 @@ def inject_neon_ui():
             min-height: 48px !important;
             box-sizing: border-box !important;
             transition: all 0.3s ease !important;
-            display: flex !important; align-items: center !important; overflow: hidden !important; margin-bottom: 8px !important;
+            display: flex !important; align-items: center !important; overflow: hidden !important; 
+            margin-bottom: 8px !important; /* 这里提供基础的 8px 下间距 */
         }}
         
         div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
@@ -137,16 +138,17 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 终极按钮引擎：Grid 绝对居中 + 间距减半 + 英文 "Enter"    */
+        /* 💥 4. 终极按钮引擎：间距再次减半，压实空间                     */
         /* ============================================================== */
         
-        /* 💥 核心修复1：使用 Grid 布局强制居中，无视 Streamlit 内部嵌套 */
+        /* 使用 Grid 布局强制居中 */
         div[data-testid="stButton"] {{
             display: grid !important;
-            place-items: center !important; /* 这一句能让内容在水平和垂直方向绝对居中 */
+            place-items: center !important; 
             width: 100% !important;
-            /* 💥 重点2：间距减半 (16px / 2 = 8px) */
-            margin-top: 8px !important; 
+            /* 💥 重点修改：将 margin-top 彻底清零，只依赖上方输入框的 8px 下边距，实现间距缩小一半 */
+            margin-top: 0px !important; 
+            padding-top: 0px !important;
         }}
 
         /* 按钮本体尺寸与样式 */
@@ -260,7 +262,7 @@ def login():
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 文字保持 "Enter" 测试
+            # 💥 文字保持 "Enter"，感受间距减半带来的极致紧凑
             if st.button("Enter", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -364,7 +366,7 @@ with tab2:
         st.dataframe(apply_color_style(display_df), use_container_width=True, height=250)
     
     with st.container(border=True):
-        st.markdown(render_header("🛡️", "审计覆写终端", "在12小时安全期内进行数据修修正验证"), unsafe_allow_html=True)
+        st.markdown(render_header("🛡️", "审计覆写终端", "在12小时安全期内进行数据修正确认"), unsafe_allow_html=True)
         if st.session_state["role"] == "admin":
             editable_df = st.session_state.df.copy()
         else:
@@ -382,7 +384,6 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            # 💥 同样更新为全英文
             if st.button("Sync Data", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
