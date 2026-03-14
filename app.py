@@ -12,7 +12,7 @@ st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sid
 BRAND_COLOR = "#a7f069" # 核心荧光绿
 BG_DARK = "#050505"     # 极深背景
 CARD_BG = "rgba(255, 255, 255, 0.02)" # 卡片底层透白
-BORDER_COLOR = "rgba(255, 255, 255, 0.15)" # 💥 提高了边框透明度，确保清晰可见
+BORDER_COLOR = "rgba(255, 255, 255, 0.15)" # 极细半透明白边
 
 CAT_COLORS = {
     "接待": {"bg": "#101D2B", "text": "#E6F0FA", "border": "#1A2E44"},       
@@ -35,7 +35,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (像素级修复对齐与交互)
+# ⬛ 霓虹悬浮 CSS 引擎 (最终按钮微调)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -51,7 +51,7 @@ def inject_neon_ui():
         header {{ visibility: hidden !important; }} 
         [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* 1. 25px大圆角卡片 */
+        /* 1. 25px圆角卡片 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
             border: 1px solid {BORDER_COLOR} !important;  
@@ -90,12 +90,10 @@ def inject_neon_ui():
             transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* ============================================================== */
-        /* 💥 3. 组件边框绝对加固 (解决登录框边框消失)                      */
-        /* ============================================================== */
+        /* 3. 组件边框绝对加固 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.3) !important; 
-            border: 1px solid {BORDER_COLOR} !important; /* 💥 边框强力锁定 */
+            border: 1px solid {BORDER_COLOR} !important; 
             border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
@@ -108,9 +106,7 @@ def inject_neon_ui():
         div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; outline: none !important; }}
         
         /* 日期选择器靶向排雷 */
-        [data-testid="stDateInput"] div[data-baseweb="input"] {{
-            background-color: transparent !important; border: none !important; box-shadow: none !important;
-        }}
+        [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
 
         /* 多行文本域修复 */
         .stTextArea textarea {{ 
@@ -131,8 +127,7 @@ def inject_neon_ui():
         
         /* 聚焦态点亮 */
         div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within, .stTextArea textarea:focus {{
-            border-color: {BRAND_COLOR} !important; 
-            box-shadow: 0 0 0 1px {BRAND_COLOR} !important;
+            border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important;
         }}
         
         div[data-baseweb="menu"] {{ background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; margin-top: 4px !important;}}
@@ -141,7 +136,7 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 按钮引擎：收缩居中 & Hover黑字反差                       */
+        /* 💥 4. 终极按钮引擎：高度48px与输入框看齐，绝对中线对齐         */
         /* ============================================================== */
         
         /* 强制按钮容器整体居中 */
@@ -156,30 +151,28 @@ def inject_neon_ui():
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important;    
             border-radius: 12px !important;                 
-            height: 54px !important; 
+            height: 48px !important;              /* 💥 高度降至 48px，与所有输入框绝对等高 */
             font-weight: 600 !important; 
             font-size: 15px !important;
             display: flex !important; 
             justify-content: center !important; 
             align-items: center !important; 
-            
-            /* 💥 按钮收缩宽度，利用 margin auto 居中 */
-            width: 280px !important; 
-            margin: 12px auto 0 auto !important; 
+            width: 280px !important;              /* 保持定宽 */
+            margin: 16px auto 0 auto !important;  /* 增加一点上方间距，利用 auto 强制水平居中 */
             transition: all 0.4s ease !important; 
         }}
-        .stButton>button span {{ display: block !important; text-align: center !important; width: 100% !important; }} 
+        .stButton>button span {{ display: block !important; text-align: center !important; width: 100% !important; letter-spacing: 2px !important; }} /* 字距微调更精致 */
         
         .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
         
-        /* 💥 悬停交互：背景变绿，文字强制变黑 */
+        /* 悬停交互：背景变绿，文字强制变黑 */
         .stButton>button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
             border-color: {BRAND_COLOR} !important;
             box-shadow: 0 0 25px rgba(167, 240, 105, 0.4) !important; 
         }}
         .stButton>button[kind="primary"]:hover * {{
-            color: #000000 !important; /* 强制所有内部文字变黑 */
+            color: #000000 !important; /* 文字变黑反差 */
         }}
 
         /* 表格与选项卡 */
@@ -237,7 +230,7 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录系统 (第一页专属验证区域)
+# 🔒 登录鉴权 (包含最新“进 入”按钮微调)
 # ==========================================
 def login():
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
@@ -248,8 +241,8 @@ def login():
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 完全居中定宽，全英文，Hover时字体变黑
-            if st.button("SYSTEM AUTHENTICATION", type="primary"):
+            # 💥 极简中文按钮：进 入 (48px等高)
+            if st.button("进 入", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
                     st.session_state["logged_in"] = True
@@ -314,7 +307,8 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        if st.button("COMMIT TRANSACTION", type="primary"):
+        # 主界面的提交按钮也同步更新
+        if st.button("提交封装", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
             current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
@@ -369,7 +363,7 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            if st.button("SYNCHRONIZE OVERRIDES", type="primary"):
+            if st.button("同步覆写数据", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
                     main_df = st.session_state.df[~st.session_state.df['序号'].isin(edited_subset['序号'])].copy()
@@ -379,7 +373,7 @@ with tab2:
 
         if not st.session_state.df.empty and st.session_state["role"] == "admin":
             csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
-            st.download_button("EXPORT SYSTEM LEDGER", data=csv, file_name="2026_财务核心数据.csv", mime="text/csv")
+            st.download_button("导出系统底账", data=csv, file_name="2026_财务核心数据.csv", mime="text/csv")
 
 with tab3:
     if not st.session_state.df.empty:
