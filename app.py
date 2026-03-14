@@ -36,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (Grid绝对居中版)
+# ⬛ 霓虹悬浮 CSS 引擎 (Grid绝对居中 + 间距减半版)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -137,15 +137,16 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 终极按钮引擎：Grid 绝对居中 + 英文 "Enter" 测试          */
+        /* 💥 4. 终极按钮引擎：Grid 绝对居中 + 间距减半 + 英文 "Enter"    */
         /* ============================================================== */
         
-        /* 💥 核心修复：使用 Grid 布局强制居中，无视 Streamlit 内部嵌套 */
+        /* 💥 核心修复1：使用 Grid 布局强制居中，无视 Streamlit 内部嵌套 */
         div[data-testid="stButton"] {{
             display: grid !important;
             place-items: center !important; /* 这一句能让内容在水平和垂直方向绝对居中 */
             width: 100% !important;
-            margin-top: 16px !important;
+            /* 💥 重点2：间距减半 (16px / 2 = 8px) */
+            margin-top: 8px !important; 
         }}
 
         /* 按钮本体尺寸与样式 */
@@ -164,7 +165,7 @@ def inject_neon_ui():
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
         }}
         
-        /* 💥 取消之前的 translateY，让英文字体自然居中 */
+        /* Enter 字母完美的 Grid 居中 */
         .stButton > button span, 
         .stButton > button div, 
         .stButton > button p {{ 
@@ -176,7 +177,7 @@ def inject_neon_ui():
             font-size: 14px !important;
             line-height: normal !important; 
             letter-spacing: 2px !important; 
-            transform: none !important; /* 移除强制偏移 */
+            transform: none !important; 
             margin: 0 !important;
             padding: 0 !important;
         }} 
@@ -259,7 +260,7 @@ def login():
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 文字改为全英文 "Enter" 测试基线对齐
+            # 💥 文字保持 "Enter" 测试
             if st.button("Enter", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -274,7 +275,7 @@ if not st.session_state.get("logged_in", False):
     st.stop()
 
 # ==========================================
-# 后续主界面代码
+# 后续主界面代码 (略)
 # ==========================================
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
@@ -325,7 +326,7 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 主界面的提交按钮也同步更新为全英文
+        # 主界面的提交按钮也同步更新样式
         if st.button("Submit", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -363,7 +364,7 @@ with tab2:
         st.dataframe(apply_color_style(display_df), use_container_width=True, height=250)
     
     with st.container(border=True):
-        st.markdown(render_header("🛡️", "审计覆写终端", "在12小时安全期内进行数据修正确认"), unsafe_allow_html=True)
+        st.markdown(render_header("🛡️", "审计覆写终端", "在12小时安全期内进行数据修修正验证"), unsafe_allow_html=True)
         if st.session_state["role"] == "admin":
             editable_df = st.session_state.df.copy()
         else:
