@@ -36,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (完美复刻胶囊按钮)
+# ⬛ 霓虹悬浮 CSS 引擎 (Grid绝对居中版)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -137,63 +137,59 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 按钮引擎终极进化：胶囊形 (Pill) + 极致下压居中           */
+        /* 💥 4. 终极按钮引擎：Grid 绝对居中 + 英文 "Enter" 测试          */
         /* ============================================================== */
         
-        /* 强制按钮容器居中 */
-        [data-testid="stVerticalBlock"] [data-testid="stButton"] {{
-            display: flex !important;
-            justify-content: center !important;
+        /* 💥 核心修复：使用 Grid 布局强制居中，无视 Streamlit 内部嵌套 */
+        div[data-testid="stButton"] {{
+            display: grid !important;
+            place-items: center !important; /* 这一句能让内容在水平和垂直方向绝对居中 */
             width: 100% !important;
+            margin-top: 16px !important;
         }}
 
-        .stButton>button {{
+        /* 按钮本体尺寸与样式 */
+        .stButton > button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important;    
-            
-            /* 💥 重点1：完全圆角（胶囊形），一模一样还原您的截图 */
-            border-radius: 50px !important;                 
-            
-            /* 💥 重点2：宽高比例微调，更加精致紧凑 */
+            border-radius: 50px !important; /* 胶囊形 */
             height: 38px !important; 
             width: 140px !important; 
-            
-            font-weight: 500 !important; 
-            font-size: 15px !important;
-            display: flex !important; justify-content: center !important; align-items: center !important; 
-            margin: 20px auto 0 auto !important; 
+            margin: 0 !important; 
+            padding: 0 !important;  
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
         }}
         
-        /* 💥 重点3：文字重力下沉，抵消中文字体自带行高 */
-        .stButton>button span, 
-        .stButton>button div, 
-        .stButton>button p {{ 
+        /* 💥 取消之前的 translateY，让英文字体自然居中 */
+        .stButton > button span, 
+        .stButton > button div, 
+        .stButton > button p {{ 
             display: flex !important; 
             align-items: center !important;
             justify-content: center !important;
             width: 100% !important; 
-            letter-spacing: 8px !important;  /* 增加字距更透气 */
-            line-height: 1 !important; 
-            
-            /* 💥 向下深度施压 2.5px，稳稳踩住您画的那条中心线 */
-            transform: translateY(2.5px) !important; 
-            
+            font-weight: 600 !important; 
+            font-size: 14px !important;
+            line-height: normal !important; 
+            letter-spacing: 2px !important; 
+            transform: none !important; /* 移除强制偏移 */
             margin: 0 !important;
             padding: 0 !important;
-            text-indent: 4px !important; /* 补偿字距导致的整体偏移 */
         }} 
         
-        .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
+        .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
         
-        /* 悬停交互：变绿、变黑、发光 */
-        .stButton>button[kind="primary"]:hover {{ 
+        /* Hover：保持绿底、光晕，文字变黑 */
+        .stButton > button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
             border-color: {BRAND_COLOR} !important;
             box-shadow: 0 0 25px rgba(167, 240, 105, 0.3) !important; 
         }}
-        .stButton>button[kind="primary"]:hover * {{
+        .stButton > button[kind="primary"]:hover * {{
             color: #000000 !important;
         }}
 
@@ -263,8 +259,8 @@ def login():
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 文字保持“进 入”
-            if st.button("进 入", type="primary"):
+            # 💥 文字改为全英文 "Enter" 测试基线对齐
+            if st.button("Enter", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
                     st.session_state["logged_in"] = True
@@ -329,7 +325,8 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        if st.button("提交封装", type="primary"):
+        # 💥 主界面的提交按钮也同步更新为全英文
+        if st.button("Submit", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
             current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
@@ -384,7 +381,8 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            if st.button("同步覆写数据", type="primary"):
+            # 💥 同样更新为全英文
+            if st.button("Sync Data", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
                     main_df = st.session_state.df[~st.session_state.df['序号'].isin(edited_subset['序号'])].copy()
@@ -394,7 +392,7 @@ with tab2:
 
         if not st.session_state.df.empty and st.session_state["role"] == "admin":
             csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
-            st.download_button("导出系统底账", data=csv, file_name="2026_财务核心数据.csv", mime="text/csv")
+            st.download_button("Export Data", data=csv, file_name="2026_财务核心数据.csv", mime="text/csv")
 
 with tab3:
     if not st.session_state.df.empty:
