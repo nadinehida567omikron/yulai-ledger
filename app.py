@@ -27,7 +27,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# 🧱 [绝对封存] 登录页专属 UI 引擎 (严格保持不动)
+# 🧱 [绝对封存] 登录页专属 UI 引擎 (未动任何代码)
 # ==========================================
 def render_login_header(icon, title, desc):
     return f"""
@@ -82,7 +82,7 @@ def inject_login_ui():
 
 
 # ==========================================
-# 💎 [全新主页] 极致还原您的图示 UI
+# 💎 [全新主页] 彻底斩除加减号 + 胶囊按钮同构
 # ==========================================
 def render_main_header(title, desc):
     return f"""
@@ -93,7 +93,6 @@ def render_main_header(title, desc):
     """
 
 def inject_main_ui():
-    """💥 主界面专属 CSS：1:1 还原您的截图"""
     st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -129,32 +128,76 @@ def inject_main_ui():
         div[data-baseweb="input"] input {{ color: #FFFFFF !important; font-size: 13px !important; text-align: center !important; padding: 0 12px !important; outline: none !important; }}
         
         [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
-        [data-testid="stNumberInput"] div[data-baseweb="input"] {{ padding: 0 !important; }}
-        [data-testid="stNumberInput"] input {{ height: 36px !important; line-height: 36px !important; padding: 0 8px !important; font-size: 13px !important; }}
-        [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 36px !important; width: 28px !important; border: none !important; }}
         
-        /* 💥 还原图示：下拉框文字靠左对齐 */
+        /* 💥 彻底斩杀数字输入框的加减号 (+/-) */
+        [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ 
+            display: none !important; 
+        }}
+        /* 确保去除加减号后，数字依然完美居中，不再偏离 */
+        [data-testid="stNumberInput"] div[data-baseweb="input"] {{ padding: 0 !important; }}
+        [data-testid="stNumberInput"] input {{ height: 36px !important; line-height: 36px !important; padding: 0 12px !important; font-size: 13px !important; text-align: center !important; }}
+        
+        /* 下拉框文字靠左对齐 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 13px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: left !important; width: 100% !important; padding-left: 10px !important; }}
         div[data-baseweb="select"] span[data-baseweb="icon"] {{ color: rgba(255,255,255,0.4) !important; margin-right: 8px !important; }}
         
         div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {{ border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important; }}
         
-        /* 标签字号缩小，紧贴输入框 */
+        /* 标签字号紧贴输入框 */
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 6px !important; text-align: left !important; }}
 
-        /* 💥 还原图示：Submit 按钮左对齐、暗色底、细绿边 */
-        div[data-testid="stButton"] {{ display: flex !important; justify-content: flex-start !important; margin-top: 16px !important; }}
-        .stButton > button {{
-            background-color: transparent !important; 
-            color: rgba(255,255,255,0.8) !important;            
-            border: 1px solid {BRAND_COLOR} !important; 
-            border-radius: 6px !important; 
-            height: 36px !important; width: 100px !important; 
-            margin: 0 !important; font-weight: 500 !important; font-size: 13px !important; transition: all 0.3s ease !important; 
+        /* ============================================================== */
+        /* 💥 还原第一页效果：胶囊按钮形态、绿底黑字反差悬停，且保持左对齐    */
+        /* ============================================================== */
+        div[data-testid="stButton"] {{ 
+            display: flex !important; 
+            justify-content: flex-start !important; /* 保持左对齐 */
+            margin-top: 16px !important; 
         }}
-        .stButton > button span {{ display: block !important; text-align: center !important; width: 100% !important; }}
-        .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: rgba(255,255,255,0.8) !important; }}
-        .stButton > button[kind="primary"]:hover {{ background-color: rgba(167, 240, 105, 0.1) !important; color: #FFF !important; }}
+        .stButton > button {{
+            background-color: rgba(255,255,255,0.03) !important; 
+            color: rgba(255,255,255,0.8) !important;            
+            border: 1px solid {BORDER_COLOR} !important; 
+            border-radius: 50px !important; /* 💥 变身第一页同款胶囊形 */
+            height: 36px !important; 
+            width: 140px !important; /* 统一宽度 */
+            margin: 0 !important; 
+            padding: 0 !important;
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important; 
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
+        }}
+        .stButton > button span,
+        .stButton > button div,
+        .stButton > button p {{ 
+            display: flex !important; 
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important; 
+            font-weight: 600 !important; 
+            font-size: 14px !important;
+            line-height: 1 !important; 
+            letter-spacing: 4px !important; /* “提 交”两字的字距 */
+            transform: translateY(1.5px) !important; /* 💥 中文字体下压，消除视觉偏上 */
+            margin: 0 !important;
+            padding: 0 !important;
+        }}
+        
+        /* 原初状态就是绿边、绿字 */
+        .stButton > button[kind="primary"] {{ 
+            border-color: {BRAND_COLOR} !important; 
+            color: {BRAND_COLOR} !important; 
+        }}
+        /* 💥 悬停时：绿底、黑字、光晕 (完美还原第一页效果) */
+        .stButton > button[kind="primary"]:hover {{ 
+            background-color: {BRAND_COLOR} !important; 
+            border-color: {BRAND_COLOR} !important;
+            box-shadow: 0 0 25px rgba(167, 240, 105, 0.3) !important; 
+        }}
+        .stButton > button[kind="primary"]:hover * {{
+            color: #000000 !important;
+        }}
         
         /* 去除 Tabs 横线 */
         .stTabs [data-baseweb="tab-list"] {{ border-bottom: none !important; gap: 32px; padding-bottom: 8px !important; margin-bottom: 24px !important; background-color: transparent !important;}}
@@ -211,7 +254,7 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录鉴权 (第一页：绝对封存不动)
+# 🔒 登录鉴权 (第一页：绝对封存)
 # ==========================================
 if not st.session_state.get("logged_in", False):
     inject_login_ui() 
@@ -235,7 +278,7 @@ if not st.session_state.get("logged_in", False):
     st.stop()
 
 # ==========================================
-# 以下为登录后的主界面逻辑 (严格还原 5-4-2 布局)
+# 以下为登录后的主界面逻辑
 # ==========================================
 inject_main_ui() 
 
@@ -257,7 +300,6 @@ st.markdown("<h2 style='color:#FFF; font-weight:600; margin-bottom: 24px; font-s
 tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
-    # 💥 板块一：1 排 5 列！完美还原图示
     with st.container(border=True):
         st.markdown(render_main_header("核心账目核算", "在此定义费用的属性及金额"), unsafe_allow_html=True)
         a_col1, a_col2, a_col3, a_col4, a_col5 = st.columns(5) 
@@ -267,16 +309,14 @@ with tab1:
         with a_col4: amount = st.number_input("金额 (元)", min_value=0.0, step=0.01)
         with a_col5: remarks = st.text_input("补充备注")
 
-    # 💥 板块二：1 排 4 列
     with st.container(border=True):
         st.markdown(render_main_header("业务追踪", "关联业务发生详情"), unsafe_allow_html=True)
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
-        with b_col1: location = st.text_input("行程")
+        with b_col1: location = st.text_input("起始终点") # 💥 行程修改为起始终点
         with b_col2: people = st.text_input("涉及人员")
-        with b_col3: num_people = st.number_input("人数", min_value=1, value=1)
+        with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1) # 💥 人数修改为参与人数
         with b_col4: summary = st.text_input("事由摘要")
 
-    # 💥 板块三：1 排 4 列（仅用前2列），按钮左对齐
     with st.container(border=True):
         st.markdown(render_main_header("审计与提交", "确认状态并封装"), unsafe_allow_html=True)
         c_col1, c_col2, c_col3, c_col4 = st.columns(4)
@@ -285,8 +325,8 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 按钮悬底靠左
-        if st.button("Submit", type="primary"):
+        # 💥 文字更改为“提 交”，CSS已配套实现胶囊形状和黑字悬停效果
+        if st.button("提 交", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
             current_month_df = st.session_state.df[st.session_state.df['月份'] == month_str]
@@ -342,7 +382,8 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            if st.button("Sync Data", type="primary"):
+            # 同样应用主界面的统一样式
+            if st.button("同步覆写", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
                     main_df = st.session_state.df[~st.session_state.df['序号'].isin(edited_subset['序号'])].copy()
@@ -352,7 +393,7 @@ with tab2:
 
         if not st.session_state.df.empty and st.session_state["role"] == "admin":
             csv = st.session_state.df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
-            st.download_button("Export Data", data=csv, file_name="2026_财务数据.csv", mime="text/csv")
+            st.download_button("导出数据", data=csv, file_name="2026_财务数据.csv", mime="text/csv")
 
 with tab3:
     if not st.session_state.df.empty:
