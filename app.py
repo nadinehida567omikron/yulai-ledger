@@ -24,7 +24,7 @@ CAT_COLORS = {
     "其他": {"bg": "#1A1A1C", "text": "#EBEBEB", "border": "#2C2C2E"}        
 }
 STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "#101D2B" }
-PLOTLY_COLORS = {k: BRAND_COLOR for k in CAT_COLORS.keys()}
+PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 def render_header(icon, title, desc):
     return f"""
@@ -36,7 +36,7 @@ def render_header(icon, title, desc):
     """
 
 # ==========================================
-# ⬛ 霓虹悬浮 CSS 引擎 (精准重构边框渲染)
+# ⬛ 霓虹悬浮 CSS 引擎 (已包含所有对齐与边框修复)
 # ==========================================
 def inject_neon_ui():
     st.markdown(f"""
@@ -91,12 +91,10 @@ def inject_neon_ui():
             transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* ============================================================== */
-        /* 💥 3. 组件外框修复：锁定所有输入框的细白边和圆角               */
-        /* ============================================================== */
+        /* 3. 组件底座归一化 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.2) !important;
-            border: 1px solid {BORDER_COLOR} !important; /* 强制细白边 */
+            border: 1px solid {BORDER_COLOR} !important; 
             border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
@@ -105,31 +103,15 @@ def inject_neon_ui():
             display: flex !important; align-items: center !important; overflow: hidden !important; margin-bottom: 8px !important;
         }}
         
-        /* 清除内部包裹器的默认样式，避免双层边框 */
-        div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ 
-            border: none !important; 
-            background-color: transparent !important; 
-            box-shadow: none !important; 
-            border-radius: 0 !important; 
-        }}
+        div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
+        div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; }}
         
-        /* 实际输入区域文字样式 */
-        div[data-baseweb="input"] input {{ 
-            background-color: transparent !important; 
-            border: none !important; 
-            color: #FFFFFF !important; 
-            font-size: 14px !important; 
-            text-align: center !important; 
-            height: 100% !important; 
-            padding: 0 16px !important; 
-        }}
-        
-        /* 💥 靶向清除日期选择器的内部冲突底座，不影响普通文本框 */
-        [data-testid="stDateInput"] div[data-baseweb="input"] {{
+        /* 单行框优化 */
+        [data-testid="stTextInput"] div[data-baseweb="input"], [data-testid="stDateInput"] div[data-baseweb="input"] {{
             background-color: transparent !important; border: none !important; box-shadow: none !important;
         }}
 
-        /* 多行文本域修复 */
+        /* 文本域修复 */
         .stTextArea textarea {{ 
             background-color: rgba(0,0,0,0.2) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 12px !important;
             color: #FFFFFF !important; font-size: 14px !important; height: 140px !important; line-height: 1.6 !important; padding: 16px !important; 
@@ -137,7 +119,7 @@ def inject_neon_ui():
         }}
         [data-testid="stTextArea"] {{ margin-bottom: 2px !important; }}
 
-        /* 数字控件加减号修复 */
+        /* 数字控件修复 */
         [data-testid="stNumberInput"] div[data-baseweb="input"] {{ padding: 0 !important; }}
         [data-testid="stNumberInput"] input {{ height: 48px !important; line-height: 48px !important; padding: 0 12px !important; }}
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 48px !important; width: 36px !important; border: none !important; }}
@@ -157,20 +139,41 @@ def inject_neon_ui():
 
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
-        /* 4. 按钮引擎：强制横向居中 */
+        /* ============================================================== */
+        /* 💥 4. 按钮引擎 (精准重构：居中定位与 Hover 字体对比度)          */
+        /* ============================================================== */
+        
+        /* 💥 修复：强制将所有按钮所在的 Streamlit 容器也进行居中对齐 */
+        [data-testid="stVerticalBlock"] [data-testid="stButton"] {{
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }}
+
         .stButton>button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important;    
             border-radius: 12px !important;                 
-            height: 54px !important; font-weight: 500 !important; font-size: 15px !important;
-            display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important;
-            transition: all 0.4s ease !important; margin-top: 12px !important;
+            height: 54px !important; 
+            font-weight: 500 !important; 
+            font-size: 15px !important;
+            display: flex !important; justify-content: center !important; align-items: center !important; 
+            
+            /* 💥 修复：按钮从通栏(100%)改为定宽并居中 */
+            width: 260px !important; /* 精准收缩宽度 */
+            margin: 12px auto 0 auto !important; /* 💥 关键：利用 auto 强制水平居中 */
+            
+            transition: all 0.4s ease !important; 
         }}
-        .stButton>button span {{ display: block !important; text-align: center !important; width: 100% !important; }} 
         
+        /* 💥 按钮变绿时，字体渐变成黑色，以形成色彩的反差 (完全遵循：变绿、反差) */
         .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
-        .stButton>button[kind="primary"]:hover {{ background-color: {BRAND_COLOR} !important; color: #000000 !important; box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; }}
+        .stButton>button[kind="primary"]:hover {{ 
+            background-color: {BRAND_COLOR} !important; 
+            color: #000000 !important; /* 💥 字体渐变成黑色 */
+            box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; 
+        }}
 
         /* 表格与选项卡 */
         [data-testid="stDataFrame"] {{ border: none !important; background-color: transparent !important; }}
@@ -227,21 +230,18 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录系统 (第一页：请重点核对这里)
+# 🔒 登录鉴权 (第一页：请重点核对微调效果)
 # ==========================================
 def login():
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         with st.container(border=True): 
-            # 采用全新的图标+标题+描述结构
             st.markdown(render_header("🔐", "系统安全鉴权", "请验证您的管理密钥以访问核心财务节点"), unsafe_allow_html=True)
-            
-            # 输入框
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 按钮全英文且绝对居中
+            # 💥 登录按钮：全英文，定宽并绝对水平居中
             if st.button("SYSTEM AUTHENTICATION", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -251,8 +251,6 @@ def login():
                     st.rerun()
                 else:
                     st.error("身份验证失败，账号或密码不匹配。")
-
-# 控制拦截
 if not st.session_state.get("logged_in", False):
     login()
     st.stop()
@@ -309,6 +307,7 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
+        # 💥 英文提交按钮也同样变为定宽并居中，字体变黑
         if st.button("COMMIT TRANSACTION", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -319,7 +318,7 @@ with tab1:
                 '月份': month_str, '序号': serial, '时间': date.strftime("%Y.%m.%d"),
                 '总类别': main_cat, '子类别': sub_cat, '摘要': summary, '人员': people, '人数': num_people, '出发地/目的地': location,
                 '金额': amount, '申请人': applicant, '申报状态': status, '备注': remarks,
-                '录入人': st.session_state["username"], '录入时间': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                '录入人': st.session_state["username"], '录入time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame([new_row])], ignore_index=True)
             save_data_to_cloud(st.session_state.df)
@@ -353,9 +352,9 @@ with tab2:
             now = datetime.datetime.now()
             editable_indices = []
             for idx, row in st.session_state.df.iterrows():
-                if row['录入人'] == st.session_state["username"] and row['录入时间'] != "":
+                if row['录入人'] == st.session_state["username"] and row['录入time'] != "":
                     try:
-                        if (now - datetime.datetime.strptime(row['录入时间'], "%Y-%m-%d %H:%M:%S")).total_seconds() <= 12 * 3600: editable_indices.append(idx)
+                        if (now - datetime.datetime.strptime(row['录入time'], "%Y-%m-%d %H:%M:%S")).total_seconds() <= 12 * 3600: editable_indices.append(idx)
                     except: pass
             editable_df = st.session_state.df.loc[editable_indices].copy()
 
@@ -364,6 +363,7 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
+            # 💥 英文更新按钮同样变为定宽并居中，字体变黑
             if st.button("SYNCHRONIZE OVERRIDES", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
