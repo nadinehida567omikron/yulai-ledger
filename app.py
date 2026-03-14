@@ -4,6 +4,7 @@ import datetime
 import requests
 import plotly.express as px
 
+# 隐藏 Streamlit 默认的顶部导航，打造纯净客户端体验
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="collapsed")
 
 # ==========================================
@@ -26,7 +27,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# 🧱 [绝对封存] 登录页专属 UI 引擎
+# 🧱 [绝对封存] 登录页专属 UI 引擎 (严格保持不动)
 # ==========================================
 def render_login_header(icon, title, desc):
     return f"""
@@ -38,155 +39,61 @@ def render_login_header(icon, title, desc):
     """
 
 def inject_login_ui():
-    """💥 完整恢复了您验收通过的终极版CSS，一个字符都不差！"""
     st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         
-        html, body, [class*="css"] {{
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif !important;
-            -webkit-font-smoothing: antialiased;
-        }}
+        html, body, [class*="css"] {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif !important; -webkit-font-smoothing: antialiased; }}
         .stApp {{ background-color: {BG_DARK} !important; }} 
         [data-testid="stSidebar"] {{ display: none !important; }}
         header {{ visibility: hidden !important; }} 
         [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* 1. 25px圆角卡片 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
-            background-color: {CARD_BG} !important; 
-            border: 1px solid {BORDER_COLOR} !important;  
-            border-radius: 25px !important;       
-            padding: 36px 40px 24px 40px !important; 
-            margin-bottom: 40px !important;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
-            position: relative;
-            z-index: 1;
-            backdrop-filter: blur(10px);
+            background-color: {CARD_BG} !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 25px !important;       
+            padding: 36px 40px 24px 40px !important; margin-bottom: 40px !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; position: relative; z-index: 1; backdrop-filter: blur(10px);
         }}
-        
-        [data-testid="stVerticalBlockBorderWrapper"]:hover {{
-            transform: translateY(-4px) !important; 
-            border-color: rgba(167, 240, 105, 0.4) !important; 
-            box-shadow: 0 15px 40px -10px rgba(167, 240, 105, 0.15), 0 0 25px rgba(167, 240, 105, 0.08) !important;
-            z-index: 10;
-        }}
+        [data-testid="stVerticalBlockBorderWrapper"]:hover {{ transform: translateY(-4px) !important; border-color: rgba(167, 240, 105, 0.4) !important; box-shadow: 0 15px 40px -10px rgba(167, 240, 105, 0.15), 0 0 25px rgba(167, 240, 105, 0.08) !important; z-index: 10; }}
 
-        /* 2. 头部结构 */
         .card-header-wrapper {{ display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 24px; }}
-        .icon-container {{
-            width: 42px; height: 42px;
-            border-radius: 12px; 
-            border: 1px solid {BORDER_COLOR};
-            background-color: rgba(255,255,255,0.02);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 18px; color: #FFFFFF;
-            margin-bottom: 16px;
-            transition: all 0.4s ease;
-        }}
+        .icon-container {{ width: 42px; height: 42px; border-radius: 12px; border: 1px solid {BORDER_COLOR}; background-color: rgba(255,255,255,0.02); display: flex; justify-content: center; align-items: center; font-size: 18px; color: #FFFFFF; margin-bottom: 16px; transition: all 0.4s ease; }}
         .title-text {{ color: #FFFFFF; font-size: 18px; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }}
         .desc-text {{ color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 400; }}
-        
-        [data-testid="stVerticalBlockBorderWrapper"]:hover .icon-container {{
-            transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
-        }}
+        [data-testid="stVerticalBlockBorderWrapper"]:hover .icon-container {{ transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2); }}
 
-        /* 3. 组件外框修复 */
-        div[data-baseweb="input"], div[data-baseweb="select"] {{
-            background-color: rgba(0,0,0,0.3) !important; 
-            border: 1px solid {BORDER_COLOR} !important; 
-            border-radius: 12px !important; 
-            height: 48px !important;            
-            min-height: 48px !important;
-            box-sizing: border-box !important;
-            transition: all 0.3s ease !important;
-            display: flex !important; align-items: center !important; overflow: hidden !important; 
-            margin-bottom: 8px !important; /* 这里提供基础的 8px 下间距 */
-        }}
-        
+        div[data-baseweb="input"], div[data-baseweb="select"] {{ background-color: rgba(0,0,0,0.3) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 12px !important; height: 48px !important; min-height: 48px !important; box-sizing: border-box !important; transition: all 0.3s ease !important; display: flex !important; align-items: center !important; overflow: hidden !important; margin-bottom: 8px !important; }}
         div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
         div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; outline: none !important; }}
-        
-        /* 聚焦态点亮 */
-        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {{
-            border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important;
-        }}
-        
+        [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
+
+        div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 14px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: center !important; width: 100% !important; }}
+        div[data-baseweb="select"] span[data-baseweb="icon"] {{ color: rgba(255,255,255,0.4) !important; margin-right: 12px !important; }}
+        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {{ border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important; }}
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
-        /* ============================================================== */
-        /* 💥 4. 终极按钮引擎：彻底找回多重选择器，死锁绝对居中           */
-        /* ============================================================== */
-        
-        /* 使用 Grid 布局强制居中 */
-        div[data-testid="stButton"] {{
-            display: grid !important;
-            place-items: center !important; 
-            width: 100% !important;
-            margin-top: 0px !important; 
-            padding-top: 0px !important;
-        }}
-
-        /* 按钮本体尺寸与样式 */
-        .stButton > button {{
-            background-color: rgba(255,255,255,0.03) !important; 
-            color: rgba(255,255,255,0.8) !important;            
-            border: 1px solid {BORDER_COLOR} !important;    
-            border-radius: 50px !important; /* 胶囊形 */
-            height: 38px !important; 
-            width: 140px !important; 
-            margin: 0 !important; 
-            padding: 0 !important;  
-            display: flex !important; 
-            justify-content: center !important; 
-            align-items: center !important; 
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
-        }}
-        
-        /* 💥 找回了丢失的 div 和 p 选择器，修复了文字偏上的问题 */
-        .stButton > button span, 
-        .stButton > button div, 
-        .stButton > button p {{ 
-            display: flex !important; 
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important; 
-            font-weight: 600 !important; 
-            font-size: 14px !important;
-            line-height: normal !important; 
-            letter-spacing: 2px !important; 
-            transform: none !important; 
-            margin: 0 !important;
-            padding: 0 !important;
-        }} 
-        
+        div[data-testid="stButton"] {{ display: grid !important; place-items: center !important; width: 100% !important; margin-top: 0px !important; padding-top: 0px !important; }}
+        .stButton > button {{ background-color: rgba(255,255,255,0.03) !important; color: rgba(255,255,255,0.8) !important; border: 1px solid {BORDER_COLOR} !important; border-radius: 50px !important; height: 38px !important; width: 140px !important; margin: 0 !important; padding: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; }}
+        .stButton > button span, .stButton > button div, .stButton > button p {{ display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; font-weight: 600 !important; font-size: 14px !important; line-height: normal !important; letter-spacing: 2px !important; transform: none !important; margin: 0 !important; padding: 0 !important; }} 
         .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
-        
-        /* Hover：保持绿底、光晕，文字变黑 */
-        .stButton > button[kind="primary"]:hover {{ 
-            background-color: {BRAND_COLOR} !important; 
-            border-color: {BRAND_COLOR} !important;
-            box-shadow: 0 0 25px rgba(167, 240, 105, 0.3) !important; 
-        }}
-        .stButton > button[kind="primary"]:hover * {{
-            color: #000000 !important;
-        }}
+        .stButton > button[kind="primary"]:hover {{ background-color: {BRAND_COLOR} !important; border-color: {BRAND_COLOR} !important; box-shadow: 0 0 25px rgba(167, 240, 105, 0.3) !important; }}
+        .stButton > button[kind="primary"]:hover * {{ color: #000000 !important; }}
         </style>
     """, unsafe_allow_html=True)
 
 
 # ==========================================
-# 💎 [全新主页] 极致紧凑 UI 引擎与渲染器
+# 💎 [全新主页] 极致还原您的图示 UI
 # ==========================================
 def render_main_header(title, desc):
     return f"""
-    <div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 16px;">
-        <div style="color: #FFFFFF; font-size: 16px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px;">{title}</div>
-        <div style="color: rgba(255,255,255,0.3); font-size: 12px; font-weight: 400;">{desc}</div>
+    <div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 20px;">
+        <div style="color: #FFFFFF; font-size: 17px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6px;">{title}</div>
+        <div style="color: rgba(255,255,255,0.35); font-size: 13px; font-weight: 400;">{desc}</div>
     </div>
     """
 
 def inject_main_ui():
+    """💥 主界面专属 CSS：1:1 还原您的截图"""
     st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -195,13 +102,13 @@ def inject_main_ui():
         [data-testid="stSidebar"] {{ background-color: #0A0A0A !important; border-right: 1px solid {BORDER_COLOR} !important; }}
         header {{ visibility: hidden !important; }} 
         
-        [data-testid="block-container"] {{ padding-top: 2rem !important; max-width: 960px !important; margin: 0 auto !important; }}
+        [data-testid="block-container"] {{ padding-top: 2rem !important; max-width: 1050px !important; margin: 0 auto !important; }}
 
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
             border: 1px solid {BORDER_COLOR} !important;  
-            border-radius: 16px !important;       
-            padding: 24px 28px 16px 28px !important; 
+            border-radius: 12px !important;       
+            padding: 24px 32px 24px 32px !important; 
             margin-bottom: 24px !important;
             backdrop-filter: blur(10px);
         }}
@@ -209,14 +116,16 @@ def inject_main_ui():
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.3) !important; 
             border: 1px solid {BORDER_COLOR} !important; 
-            border-radius: 8px !important; 
+            border-radius: 6px !important; 
             height: 36px !important;            
             min-height: 36px !important;
             box-sizing: border-box !important;
             display: flex !important; align-items: center !important; overflow: hidden !important; 
-            margin-bottom: 2px !important; 
+            margin-bottom: 0px !important; 
         }}
         div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
+        
+        /* 输入框居中对齐 */
         div[data-baseweb="input"] input {{ color: #FFFFFF !important; font-size: 13px !important; text-align: center !important; padding: 0 12px !important; outline: none !important; }}
         
         [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
@@ -224,26 +133,35 @@ def inject_main_ui():
         [data-testid="stNumberInput"] input {{ height: 36px !important; line-height: 36px !important; padding: 0 8px !important; font-size: 13px !important; }}
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 36px !important; width: 28px !important; border: none !important; }}
         
-        div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 13px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: center !important; width: 100% !important; }}
+        /* 💥 还原图示：下拉框文字靠左对齐 */
+        div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 13px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: left !important; width: 100% !important; padding-left: 10px !important; }}
         div[data-baseweb="select"] span[data-baseweb="icon"] {{ color: rgba(255,255,255,0.4) !important; margin-right: 8px !important; }}
         
         div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {{ border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important; }}
         
-        .stMarkdown label, p, .stWidgetLabel {{ font-size: 12px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 4px !important; }}
+        /* 标签字号缩小，紧贴输入框 */
+        .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 6px !important; text-align: left !important; }}
 
-        div[data-testid="stButton"] {{ display: flex !important; justify-content: flex-end !important; margin-top: 12px !important; }}
+        /* 💥 还原图示：Submit 按钮左对齐、暗色底、细绿边 */
+        div[data-testid="stButton"] {{ display: flex !important; justify-content: flex-start !important; margin-top: 16px !important; }}
         .stButton > button {{
-            background-color: rgba(255,255,255,0.03) !important; color: rgba(255,255,255,0.8) !important;            
-            border: 1px solid {BORDER_COLOR} !important; border-radius: 8px !important; height: 36px !important; width: 120px !important; 
+            background-color: transparent !important; 
+            color: rgba(255,255,255,0.8) !important;            
+            border: 1px solid {BRAND_COLOR} !important; 
+            border-radius: 6px !important; 
+            height: 36px !important; width: 100px !important; 
             margin: 0 !important; font-weight: 500 !important; font-size: 13px !important; transition: all 0.3s ease !important; 
         }}
-        .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
-        .stButton > button[kind="primary"]:hover {{ background-color: {BRAND_COLOR} !important; color: #000000 !important; box-shadow: 0 0 15px rgba(167, 240, 105, 0.3) !important; }}
+        .stButton > button span {{ display: block !important; text-align: center !important; width: 100% !important; }}
+        .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: rgba(255,255,255,0.8) !important; }}
+        .stButton > button[kind="primary"]:hover {{ background-color: rgba(167, 240, 105, 0.1) !important; color: #FFF !important; }}
         
+        /* 去除 Tabs 横线 */
         .stTabs [data-baseweb="tab-list"] {{ border-bottom: none !important; gap: 32px; padding-bottom: 8px !important; margin-bottom: 24px !important; background-color: transparent !important;}}
         .stTabs [data-baseweb="tab"] {{ border: none !important; color: rgba(255,255,255,0.4) !important; font-size: 15px !important; font-weight: 500 !important; background-color: transparent !important;}}
         .stTabs [aria-selected="true"] {{ color: {BRAND_COLOR} !important; border-bottom: 2px solid {BRAND_COLOR} !important; }}
         
+        /* 表格精简 */
         [data-testid="stDataFrame"] {{ border: none !important; background-color: transparent !important; }}
         th {{ border-bottom: 1px solid {BORDER_COLOR} !important; background-color: transparent !important; font-weight: 500 !important; color:rgba(255,255,255,0.4) !important; font-size: 12px !important;}}
         td {{ border-bottom: 1px solid rgba(255,255,255,0.04) !important; color: #EBEBEB !important; font-size: 13px !important;}}
@@ -293,10 +211,10 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 路由拦截：登录鉴权
+# 🔒 登录鉴权 (第一页：绝对封存不动)
 # ==========================================
 if not st.session_state.get("logged_in", False):
-    inject_login_ui() # 💥 登录时，注入已被封存的完美登录页 CSS
+    inject_login_ui() 
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
@@ -317,9 +235,9 @@ if not st.session_state.get("logged_in", False):
     st.stop()
 
 # ==========================================
-# 以下为登录后的主界面逻辑
+# 以下为登录后的主界面逻辑 (严格还原 5-4-2 布局)
 # ==========================================
-inject_main_ui() # 💥 登录成功后，系统立刻切换为高度紧凑压缩的主页 CSS
+inject_main_ui() 
 
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
@@ -339,28 +257,26 @@ st.markdown("<h2 style='color:#FFF; font-weight:600; margin-bottom: 24px; font-s
 tab1, tab2, tab3 = st.tabs(["录入中心", "审计终端", "数据矩阵"])
 
 with tab1:
+    # 💥 板块一：1 排 5 列！完美还原图示
     with st.container(border=True):
         st.markdown(render_main_header("核心账目核算", "在此定义费用的属性及金额"), unsafe_allow_html=True)
-        a_col1, a_col2, a_col3, a_col4 = st.columns(4) 
+        a_col1, a_col2, a_col3, a_col4, a_col5 = st.columns(5) 
         with a_col1: date = st.date_input("发生时间", datetime.date.today())
         with a_col2: main_cat = st.selectbox("总类别", list(CAT_COLORS.keys()))
         with a_col3: sub_cat = st.text_input("子类别")
         with a_col4: amount = st.number_input("金额 (元)", min_value=0.0, step=0.01)
-        
-        a2_col1, a2_col2, a2_col3, a2_col4 = st.columns(4)
-        with a2_col1: remarks = st.text_input("补充备注")
-        with a2_col2: st.empty() 
-        with a2_col3: st.empty() 
-        with a2_col4: st.empty() 
+        with a_col5: remarks = st.text_input("补充备注")
 
+    # 💥 板块二：1 排 4 列
     with st.container(border=True):
         st.markdown(render_main_header("业务追踪", "关联业务发生详情"), unsafe_allow_html=True)
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
         with b_col1: location = st.text_input("行程")
         with b_col2: people = st.text_input("涉及人员")
         with b_col3: num_people = st.number_input("人数", min_value=1, value=1)
-        with b_col4: summary = text_input("事由摘要") if 'text_input' in locals() else st.text_input("事由摘要")
+        with b_col4: summary = st.text_input("事由摘要")
 
+    # 💥 板块三：1 排 4 列（仅用前2列），按钮左对齐
     with st.container(border=True):
         st.markdown(render_main_header("审计与提交", "确认状态并封装"), unsafe_allow_html=True)
         c_col1, c_col2, c_col3, c_col4 = st.columns(4)
@@ -369,6 +285,7 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
+        # 按钮悬底靠左
         if st.button("Submit", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -385,6 +302,7 @@ with tab1:
             save_data_to_cloud(st.session_state.df)
             st.success(f"已生成标识: {serial}")
 
+    # 精准动态色彩引擎
     st.markdown(f"""
         <style>
         [data-testid="stVerticalBlockBorderWrapper"]:nth-of-type(1) [data-testid="column"]:nth-of-type(2) div[data-baseweb="select"] {{
