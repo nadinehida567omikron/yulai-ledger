@@ -4,7 +4,6 @@ import datetime
 import requests
 import plotly.express as px
 
-# 隐藏 Streamlit 默认的顶部导航，打造纯净客户端体验
 st.set_page_config(page_title="2026 财务管控库", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
@@ -52,7 +51,7 @@ def inject_neon_ui():
         header {{ visibility: hidden !important; }} 
         [data-testid="block-container"] {{ padding-top: 3rem !important; max-width: 1200px !important; margin: 0 auto !important; }}
 
-        /* 1. 25px圆角卡片与极细边框全面回归 */
+        /* 1. 25px圆角卡片 */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {CARD_BG} !important; 
             border: 1px solid {BORDER_COLOR} !important;  
@@ -91,12 +90,10 @@ def inject_neon_ui():
             transform: scale(1.1); border-color: {BRAND_COLOR}; color: {BRAND_COLOR}; box-shadow: 0 0 15px rgba(167, 240, 105, 0.2);
         }}
 
-        /* ============================================================== */
-        /* 3. 组件外框修复：确保细边框 100% 显示                         */
-        /* ============================================================== */
+        /* 3. 组件外框修复：确保细边框 100% 显示 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
-            background-color: rgba(0,0,0,0.3) !important; /* 💥 加深了一点输入框背景，提高细边框对比度 */
-            border: 1px solid {BORDER_COLOR} !important; /* 强力锁定外框 */
+            background-color: rgba(0,0,0,0.3) !important; 
+            border: 1px solid {BORDER_COLOR} !important; 
             border-radius: 12px !important; 
             height: 48px !important;            
             min-height: 48px !important;
@@ -109,9 +106,7 @@ def inject_neon_ui():
         div[data-baseweb="input"] input {{ background-color: transparent !important; border: none !important; color: #FFFFFF !important; font-size: 14px !important; text-align: center !important; height: 100% !important; padding: 0 16px !important; outline: none !important; }}
         
         /* 日期选择器靶向排雷 */
-        [data-testid="stDateInput"] div[data-baseweb="input"] {{
-            background-color: transparent !important; border: none !important; box-shadow: none !important;
-        }}
+        [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
 
         /* 多行文本域修复 */
         .stTextArea textarea {{ 
@@ -121,7 +116,7 @@ def inject_neon_ui():
         }}
         [data-testid="stTextArea"] {{ margin-bottom: 2px !important; }}
 
-        /* 数字控件加减号修复 */
+        /* 数字控件修复 */
         [data-testid="stNumberInput"] div[data-baseweb="input"] {{ padding: 0 !important; }}
         [data-testid="stNumberInput"] input {{ height: 48px !important; line-height: 48px !important; padding: 0 12px !important; }}
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ background-color: transparent !important; color: rgba(255,255,255,0.4) !important; height: 48px !important; width: 36px !important; border: none !important; }}
@@ -132,8 +127,7 @@ def inject_neon_ui():
         
         /* 聚焦态点亮 */
         div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within, .stTextArea textarea:focus {{
-            border-color: {BRAND_COLOR} !important; 
-            box-shadow: 0 0 0 1px {BRAND_COLOR} !important;
+            border-color: {BRAND_COLOR} !important; box-shadow: 0 0 0 1px {BRAND_COLOR} !important;
         }}
         
         div[data-baseweb="menu"] {{ background-color: #1E1E20 !important; border: 1px solid #333336 !important; border-radius: 4px !important; padding: 4px !important; margin-top: 4px !important;}}
@@ -142,13 +136,12 @@ def inject_neon_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 8px !important; }}
 
         /* ============================================================== */
-        /* 💥 4. 终极按钮引擎：定宽、高度36px、全员居中对齐、文字微调       */
+        /* 💥 4. 终极按钮引擎：文字强制物理下移，解决中文字体视觉偏上   */
         /* ============================================================== */
         
-        /* 强制按钮所在的 Streamlit 容器也水平居中，实现组件横向移动到中间 */
         [data-testid="stVerticalBlock"] [data-testid="stButton"] {{
             display: flex !important;
-            justify-content: center !important; /* 横向移动到中央对齐 */
+            justify-content: center !important;
             width: 100% !important;
         }}
 
@@ -157,40 +150,33 @@ def inject_neon_ui():
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important;    
             border-radius: 12px !important;                 
-            
-            /* 💥 尺寸：矮 1/3 (Original 54px / 1.5 = 36px) */
-            height: 36px !important; font-weight: 500 !important; font-size: 14px !important;
-            
-            /* 💥 对齐：按钮内字、按钮带字整体横向对齐中间 */
+            height: 36px !important; 
+            font-weight: 500 !important; 
+            font-size: 14px !important;
             display: flex !important; justify-content: center !important; align-items: center !important; 
-            
-            /* 💥 位置：定宽并在卡片内居中 */
             width: 180px !important; 
-            margin: 16px auto 0 auto !important; /* 💥 利用 auto 强制在列中居中 */
-            
+            margin: 16px auto 0 auto !important; 
             transition: all 0.4s ease !important; 
         }}
         
-        /* 💥 字体修正：宁可偏下也不要偏上 */
+        /* 💥 文字物理下移 2px 修正视觉重心 */
         .stButton>button span {{ 
             display: block !important; 
             text-align: center !important; 
             width: 100% !important; 
-            letter-spacing: 2px !important; /* “进 入”中间空一个 */
-            /* 利用 padding 微调，强制向下偏移 1 像素，确保视觉中心 */
-            padding-top: 1px !important; 
+            letter-spacing: 4px !important; 
+            transform: translateY(2px) !important; /* 💥 核心：强制字体像素向下移动 */
         }} 
         
         .stButton>button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
         
-        /* Hover：字体变黑色彩反差，霓虹弥散效果不变 */
         .stButton>button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
             border-color: {BRAND_COLOR} !important;
             box-shadow: 0 0 20px rgba(167, 240, 105, 0.4) !important; 
         }}
         .stButton>button[kind="primary"]:hover * {{
-            color: #000000 !important; /* 💥 变黑，反差容易识别 */
+            color: #000000 !important;
         }}
 
         /* 表格与选项卡 */
@@ -248,21 +234,18 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录系统 (请重点核对这里)
+# 🔒 登录系统
 # ==========================================
 def login():
     st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         with st.container(border=True): 
-            # 采用全新的图标+标题+描述结构
             st.markdown(render_header("🔐", "系统安全鉴权", "请验证您的管理密钥以访问核心财务节点"), unsafe_allow_html=True)
-            
-            # 输入框
             username = st.text_input("登录账号")
             password = st.text_input("安全密钥", type="password")
             
-            # 💥 最终修正：定宽、居中、矮按钮，文字修正为：进 入
+            # 💥 文字改为中文“进 入”，在上面的 CSS 中已被强制下移 2px
             if st.button("进 入", type="primary"):
                 creds = st.secrets.get("credentials", {})
                 if username in creds and creds[username]["password"] == password:
@@ -272,8 +255,6 @@ def login():
                     st.rerun()
                 else:
                     st.error("身份验证失败，账号或密码不匹配。")
-
-# 控制拦截
 if not st.session_state.get("logged_in", False):
     login()
     st.stop()
@@ -330,7 +311,6 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 英文提交按钮也同样变为矮定宽
         if st.button("提交封装", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -386,7 +366,6 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            # 💥 英文更新按钮同样变为矮定宽
             if st.button("同步覆写数据", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
