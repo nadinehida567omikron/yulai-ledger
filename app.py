@@ -27,7 +27,7 @@ STATUS_COLORS = { "已申报": "#12261E", "未申报": "#2A1E16", "审批中": "
 PLOTLY_COLORS = {k: v["bg"] for k, v in CAT_COLORS.items()}
 
 # ==========================================
-# 🧱 [绝对封存] 登录页专属 UI 引擎 (未动任何代码)
+# 🧱 [绝对封存] 登录页专属 UI 引擎 
 # ==========================================
 def render_login_header(icon, title, desc):
     return f"""
@@ -82,7 +82,7 @@ def inject_login_ui():
 
 
 # ==========================================
-# 💎 [全新主页] 彻底斩除加减号 + 胶囊按钮同构
+# 💎 [全新主页] 清除重叠框 + 文字绝对居中
 # ==========================================
 def render_main_header(title, desc):
     return f"""
@@ -112,6 +112,7 @@ def inject_main_ui():
             backdrop-filter: blur(10px);
         }}
 
+        /* 💥 核心修复1：所有输入框统一单层管理，防止深层div产生红色幽灵边框重叠 */
         div[data-baseweb="input"], div[data-baseweb="select"] {{
             background-color: rgba(0,0,0,0.3) !important; 
             border: 1px solid {BORDER_COLOR} !important; 
@@ -122,9 +123,18 @@ def inject_main_ui():
             display: flex !important; align-items: center !important; overflow: hidden !important; 
             margin-bottom: 0px !important; 
         }}
-        div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{ border: none !important; background-color: transparent !important; box-shadow: none !important; border-radius: 0 !important; }}
         
-        /* 输入框居中对齐 */
+        /* 强制扒光内部嵌套的所有边框和背景 */
+        div[data-baseweb="input"] > div, 
+        div[data-baseweb="select"] > div,
+        [data-testid="stNumberInput"] > div > div {{ 
+            border: none !important; 
+            background-color: transparent !important; 
+            box-shadow: none !important; 
+            border-radius: 0 !important; 
+            padding: 0 !important; /* 清除导致重叠的内边距 */
+        }}
+        
         div[data-baseweb="input"] input {{ color: #FFFFFF !important; font-size: 13px !important; text-align: center !important; padding: 0 12px !important; outline: none !important; }}
         
         [data-testid="stDateInput"] div[data-baseweb="input"] {{ background-color: transparent !important; border: none !important; box-shadow: none !important; }}
@@ -133,9 +143,16 @@ def inject_main_ui():
         [data-testid="stNumberInputStepUp"], [data-testid="stNumberInputStepDown"] {{ 
             display: none !important; 
         }}
-        /* 确保去除加减号后，数字依然完美居中，不再偏离 */
-        [data-testid="stNumberInput"] div[data-baseweb="input"] {{ padding: 0 !important; }}
-        [data-testid="stNumberInput"] input {{ height: 36px !important; line-height: 36px !important; padding: 0 12px !important; font-size: 13px !important; text-align: center !important; }}
+        
+        /* 数字输入框的内联文字绝对居中 */
+        [data-testid="stNumberInput"] input {{ 
+            height: 36px !important; 
+            line-height: 36px !important; 
+            padding: 0 !important; 
+            font-size: 13px !important; 
+            text-align: center !important; 
+            width: 100% !important;
+        }}
         
         /* 下拉框文字靠左对齐 */
         div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{ font-size: 13px !important; margin: 0 !important; color: #FFFFFF !important; font-weight: 500 !important; text-align: left !important; width: 100% !important; padding-left: 10px !important; }}
@@ -147,20 +164,20 @@ def inject_main_ui():
         .stMarkdown label, p, .stWidgetLabel {{ font-size: 13px !important; font-weight: 500 !important; color: rgba(255,255,255,0.45) !important; margin-bottom: 6px !important; text-align: left !important; }}
 
         /* ============================================================== */
-        /* 💥 还原第一页效果：胶囊按钮形态、绿底黑字反差悬停，且保持左对齐    */
+        /* 💥 核心修复2：主页按钮物理下压 1.5px，解决中文偏上问题        */
         /* ============================================================== */
         div[data-testid="stButton"] {{ 
             display: flex !important; 
-            justify-content: flex-start !important; /* 保持左对齐 */
+            justify-content: flex-start !important; 
             margin-top: 16px !important; 
         }}
         .stButton > button {{
             background-color: rgba(255,255,255,0.03) !important; 
             color: rgba(255,255,255,0.8) !important;            
             border: 1px solid {BORDER_COLOR} !important; 
-            border-radius: 50px !important; /* 💥 变身第一页同款胶囊形 */
+            border-radius: 50px !important; /* 胶囊形 */
             height: 36px !important; 
-            width: 140px !important; /* 统一宽度 */
+            width: 140px !important; 
             margin: 0 !important; 
             padding: 0 !important;
             display: flex !important; 
@@ -168,6 +185,8 @@ def inject_main_ui():
             align-items: center !important; 
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important; 
         }}
+        
+        /* 💥 针对中文字体强制下压 */
         .stButton > button span,
         .stButton > button div,
         .stButton > button p {{ 
@@ -178,18 +197,14 @@ def inject_main_ui():
             font-weight: 600 !important; 
             font-size: 14px !important;
             line-height: 1 !important; 
-            letter-spacing: 4px !important; /* “提 交”两字的字距 */
-            transform: translateY(1.5px) !important; /* 💥 中文字体下压，消除视觉偏上 */
+            letter-spacing: 4px !important; 
+            transform: translateY(1.5px) !important; /* 💥 解决“提 交”偏上 */
             margin: 0 !important;
             padding: 0 !important;
         }}
         
-        /* 原初状态就是绿边、绿字 */
-        .stButton > button[kind="primary"] {{ 
-            border-color: {BRAND_COLOR} !important; 
-            color: {BRAND_COLOR} !important; 
-        }}
-        /* 💥 悬停时：绿底、黑字、光晕 (完美还原第一页效果) */
+        .stButton > button[kind="primary"] {{ border-color: {BRAND_COLOR} !important; color: {BRAND_COLOR} !important; }}
+        
         .stButton > button[kind="primary"]:hover {{ 
             background-color: {BRAND_COLOR} !important; 
             border-color: {BRAND_COLOR} !important;
@@ -254,7 +269,7 @@ def save_data_to_cloud(df):
 if 'df' not in st.session_state: st.session_state.df = load_data_from_cloud()
 
 # ==========================================
-# 🔒 登录鉴权 (第一页：绝对封存)
+# 🔒 登录鉴权 (第一页)
 # ==========================================
 if not st.session_state.get("logged_in", False):
     inject_login_ui() 
@@ -278,7 +293,7 @@ if not st.session_state.get("logged_in", False):
     st.stop()
 
 # ==========================================
-# 以下为登录后的主界面逻辑
+# 以下为登录后的主界面逻辑 
 # ==========================================
 inject_main_ui() 
 
@@ -312,9 +327,9 @@ with tab1:
     with st.container(border=True):
         st.markdown(render_main_header("业务追踪", "关联业务发生详情"), unsafe_allow_html=True)
         b_col1, b_col2, b_col3, b_col4 = st.columns(4) 
-        with b_col1: location = st.text_input("起始终点") # 💥 行程修改为起始终点
+        with b_col1: location = st.text_input("起始终点") 
         with b_col2: people = st.text_input("涉及人员")
-        with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1) # 💥 人数修改为参与人数
+        with b_col3: num_people = st.number_input("参与人数", min_value=1, value=1) 
         with b_col4: summary = st.text_input("事由摘要")
 
     with st.container(border=True):
@@ -325,7 +340,7 @@ with tab1:
         with c_col3: st.empty() 
         with c_col4: st.empty() 
         
-        # 💥 文字更改为“提 交”，CSS已配套实现胶囊形状和黑字悬停效果
+        # 💥 按钮悬底靠左，文字“提 交”
         if st.button("提 交", type="primary"):
             month_str = f"{date.month:02d}"
             year_month = f"{date.year % 100:02d}{month_str}"
@@ -382,7 +397,6 @@ with tab2:
         else:
             edited_subset = st.data_editor(editable_df, num_rows="dynamic", use_container_width=True, column_config={"金额": st.column_config.NumberColumn("金额", format="%.2f")})
             
-            # 同样应用主界面的统一样式
             if st.button("同步覆写", type="primary"):
                 if st.session_state["role"] == "admin": st.session_state.df = edited_subset
                 else:
